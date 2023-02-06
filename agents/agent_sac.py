@@ -10,6 +10,7 @@ from agents.auxiliary_funcs import BaseSacAgent
 from multistep_dynamics import MultiStepDynamicsModel
 import multistep_utils as mutils
 
+
 class PixelSacAgent(BaseSacAgent):
     """Learning Representations of Pixel Observations with SAC + Self-Supervised Techniques.."""
     def __init__(

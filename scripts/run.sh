@@ -1,4 +1,4 @@
-CUDA_VISIBLE_DEVICES=0 python train.py \
+CUDA_VISIBLE_DEVICES=$5 python train.py \
     --domain_name $3 \
     --task_name $4 --case $1 \
     --encoder_type pixel --work_dir ./tmp/test \
