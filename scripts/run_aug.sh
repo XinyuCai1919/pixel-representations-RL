@@ -1,7 +1,7 @@
 MUJOCO_GL="osmesa" CUDA_VISIBLE_DEVICES=$5 python train.py \
     --domain_name $3 \
     --task_name $4 --case $1 \
-    --encoder_type pixel --work_dir ./tmp/test \
+    --encoder_type pixel --work_dir ./tmp/aug \
     --action_repeat 8 --num_eval_episodes 10 \
     --pre_transform_image_size 100 --image_size 84 --replay_buffer_capacity 100 \
     --frame_stack 3 --data_augs crop  \
