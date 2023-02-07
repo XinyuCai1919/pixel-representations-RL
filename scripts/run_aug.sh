@@ -8,5 +8,5 @@ MUJOCO_GL="osmesa" CUDA_VISIBLE_DEVICES=$5 python train.py \
     --seed 23 --critic_lr 1e-3 --actor_lr 1e-3 --eval_freq 10000 \
     --batch_size 16 --num_train_steps 200000 --metric_loss \
     --init_steps 1000 \
-    --resource_files './distractors/driving/*.mp4' --img_source 'video' --total_frames 20 \
+    --resource_files './distractors/driving/*.mp4' --img_source 'video' --total_frames 50 \
     --horizon $2 --save_model
