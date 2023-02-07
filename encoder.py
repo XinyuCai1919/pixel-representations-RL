@@ -16,7 +16,7 @@ def tie_weights(src, trg):
 ### Works with RAD SAC
 OUT_DIM = {2: 39, 4: 35, 6: 31}
 OUT_DIM_84 = {2: 29, 4: 35, 6: 21}
-OUT_DIM_100 = {4: 47}
+OUT_DIM_100 = {4: 43}
 
  
 class PixelEncoder(nn.Module):
