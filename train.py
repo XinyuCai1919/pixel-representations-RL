@@ -43,7 +43,7 @@ def parse_args():
     # train
     parser.add_argument('--init_steps', default=1000, type=int)
     parser.add_argument('--num_train_steps', default=1000000, type=int)
-    parser.add_argument('--batch_size', default=32, type=int)
+    parser.add_argument('--batch_size', default=128, type=int)
     parser.add_argument('--hidden_dim', default=1024, type=int)
     # eval
     parser.add_argument('--eval_freq', default=1000, type=int)
@@ -51,7 +51,7 @@ def parse_args():
     # critic
     parser.add_argument('--critic_lr', default=1e-3, type=float)
     parser.add_argument('--critic_beta', default=0.9, type=float)
-    parser.add_argument('--critic_tau', default=0.01, type=float) # try 0.05 or 0.1
+    parser.add_argument('--critic_tau', default=0.005, type=float) # try 0.05 or 0.1
     parser.add_argument('--critic_target_update_freq', default=2, type=int) # try to change it to 1 and retain 0.01 above
     # actor
     parser.add_argument('--actor_lr', default=1e-3, type=float)
@@ -63,7 +63,7 @@ def parse_args():
     parser.add_argument('--encoder_type', default='pixel', type=str)
     parser.add_argument('--encoder_feature_dim', default=50, type=int)
     parser.add_argument('--encoder_lr', default=1e-3, type=float)
-    parser.add_argument('--encoder_tau', default=0.05, type=float)
+    parser.add_argument('--encoder_tau', default=0.005, type=float)
     parser.add_argument('--num_layers', default=4, type=int)
     parser.add_argument('--num_filters', default=32, type=int)
     parser.add_argument('--latent_dim', default=128, type=int)
