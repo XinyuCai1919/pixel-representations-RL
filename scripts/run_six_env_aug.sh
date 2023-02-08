@@ -1,9 +1,9 @@
-. scripts/run_aug.sh cartpole
-. scripts/run_aug.sh cheetah
-. scripts/run_aug.sh finger
-. scripts/run_aug.sh hopper
-. scripts/run_aug.sh reacher
-. scripts/run_aug.sh walker
+. scripts/run_aug.sh cartpole 1 2 3 3
+. scripts/run_aug.sh cheetah 1 2 3 3
+. scripts/run_aug.sh finger 1 2 3 3
+. scripts/run_aug.sh hopper 1 2 3 3
+. scripts/run_aug.sh reacher 1 2 3 3
+. scripts/run_aug.sh walker 1 2 3 3
 
 
 
