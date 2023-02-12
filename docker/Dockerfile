@@ -28,7 +28,7 @@ RUN chmod +x ~/miniconda.sh && \
 ENV PATH /opt/conda/bin:$PATH
 
 RUN mkdir ~/.mujoco && \
-    cd ~/.mujoco \
+    cd ~/.mujoco && \
     curl -o mujoco200_linux.zip https://www.roboti.us/download/mujoco200_linux.zip && \
     unzip mujoco200_linux.zip && \
     move mujoco200_linux mujoco200 && \
