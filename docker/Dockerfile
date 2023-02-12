@@ -3,6 +3,8 @@ ARG PYTHON_VERSION=3.6
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends --no-install-suggests -y ca-certificates \
          cmake \
+         gcc \
+         patchelf libosmesa6-dev libgl1-mesa-glx libglfw3 \
          git \
          curl \
          zip \
@@ -11,7 +13,9 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-instal
          python3-dev \
          zlib1g-dev \
          libgl1-mesa-glx \
-         swig && \
+         libtiff5-dev libjpeg8-dev libopenjp2-7-dev zlib1g-dev \
+         libfreetype6-dev liblcms2-dev libwebp-dev tcl8.6-dev tk8.6-dev python3-tk \
+         libharfbuzz-dev libfribidi-dev libxcb1-devswig && \
      rm -rf /var/lib/apt/lists/*
 
 # Install Anaconda and dependencies
@@ -23,19 +27,21 @@ RUN chmod +x ~/miniconda.sh && \
 
 ENV PATH /opt/conda/bin:$PATH
 
-#RUN mkdir ~/.mujoco && \
-#    cd ~/.mujoco \
-#    curl -o ./mujoco200.zip https://www.roboti.us/download/mujoco200_linux.zip && \
-#    unzip mujoco200.zip && \
-#    curl -o ./mjkey.txt mjkey.txt && \
-#
-#
-#RUN git clone https://github.com/XinyuCai1919/pixel-representations-RL.git && \
-#        cd  ./pixel-representations-RL && \
-#        conda init bash && . ~/.bashrc && \
-#        conda activate py36 && \
-#        pip install -r requirements.txt && \
-#        pip install torch==1.9.0+cu111 torchvision==0.10.0+cu111 torchaudio==0.9.0 -f https://download.pytorch.org/whl/torch_stable.html
-##    conda install pytorch torchvision torchaudio cudatoolkit=11.3 -c pytorch
+RUN mkdir ~/.mujoco && \
+    cd ~/.mujoco \
+    curl -o ./mujoco200.zip https://www.roboti.us/download/mujoco200_linux.zip && \
+    unzip mujoco200.zip && \
+    move mujoco200_linux mujoco200 && \
+    echo "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/root/.mujoco/mujoco200/bin" >> ~/.bashrc && \
+    curl -o ./mjkey.txt https://www.roboti.us/file/mjkey.txt && \
+
+
+RUN git clone https://github.com/XinyuCai1919/pixel-representations-RL.git && \
+        cd  ./pixel-representations-RL && \
+        conda init bash && . ~/.bashrc && \
+        conda activate py36 && \
+        pip install -r requirements.txt && \
+        pip install torch==1.9.0+cu111 torchvision==0.10.0+cu111 torchaudio==0.9.0 -f https://download.pytorch.org/whl/torch_stable.html
+#    conda install pytorch torchvision torchaudio cudatoolkit=11.3 -c pytorch
 
 RUN echo "conda activate py36" >> ~/.bashrc
