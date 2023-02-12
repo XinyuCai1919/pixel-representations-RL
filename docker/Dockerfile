@@ -22,7 +22,7 @@ RUN chmod +x ~/miniconda.sh && \
 ENV PATH /opt/conda/bin:$PATH
 
 RUN git clone https://github.com/XinyuCai1919/pixel-representations-RL.git
-RUN cd  /home/pixel-representations-RL && \
+RUN cd  ./pixel-representations-RL && \
         conda init bash && . ~/.bashrc && \
         conda activate py36 && \
         pip install -r requirements.txt && \
