@@ -32,7 +32,7 @@ RUN mkdir ~/.mujoco && \
     curl -o mujoco200_linux.zip https://www.roboti.us/download/mujoco200_linux.zip && \
     unzip mujoco200_linux.zip && \
     echo "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/root/.mujoco/mujoco200_linux/bin" >> ~/.bashrc && \
-    curl -o ./mjkey.txt https://www.roboti.us/file/mjkey.txt && \
+    curl -o ./mjkey.txt https://www.roboti.us/file/mjkey.txt
 
 
 RUN git clone https://github.com/XinyuCai1919/pixel-representations-RL.git && \
