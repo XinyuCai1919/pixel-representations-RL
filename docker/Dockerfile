@@ -26,7 +26,7 @@ RUN cd  /home/pixel-representations-RL && \
         conda init bash && . ~/.bashrc && \
         conda activate py36 && \
         pip install -r requirements.txt && \
-        pip install torch==1.9.0+cu111 torchvision==0.10.0+cu111 torchaudio==0.9.0 -f https://download.pytorch.org/whl/torch_stable.html  && \
+        pip install torch==1.9.0+cu111 torchvision==0.10.0+cu111 torchaudio==0.9.0 -f https://download.pytorch.org/whl/torch_stable.html
 #    conda install pytorch torchvision torchaudio cudatoolkit=11.3 -c pytorch
 
 RUN echo "conda activate py36" >> ~/.bashrc
