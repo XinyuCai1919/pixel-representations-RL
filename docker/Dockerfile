@@ -5,6 +5,8 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-instal
          cmake \
          git \
          curl \
+         zip \
+         unzip \
          libopenmpi-dev \
          python3-dev \
          zlib1g-dev \
@@ -20,6 +22,13 @@ RUN chmod +x ~/miniconda.sh && \
      /opt/conda/bin/conda create --name py36 python=$PYTHON_VERSION
 
 ENV PATH /opt/conda/bin:$PATH
+
+RUN mkdir ~/.mujoco && \
+    cd ~/.mujoco \
+    curl -o ./mujoco200.zip https://www.roboti.us/download/mujoco200_linux.zip && \
+    unzip mujoco200.zip && \
+    curl -o ./mjkey.txt mjkey.txt && \
+
 
 RUN git clone https://github.com/XinyuCai1919/pixel-representations-RL.git && \
         cd  ./pixel-representations-RL && \
