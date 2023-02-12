@@ -1,5 +1,5 @@
 FROM ubuntu:20.04 as base
-ARG PYTHON_VERSION=3.6
+ARG PYTHON_VERSION=3.8
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends --no-install-suggests -y ca-certificates \
          cmake \
@@ -23,7 +23,7 @@ RUN curl -o ~/miniconda.sh https://repo.anaconda.com/miniconda/Miniconda3-latest
 RUN chmod +x ~/miniconda.sh && \
      ~/miniconda.sh -b -p /opt/conda && \
      rm ~/miniconda.sh && \
-     /opt/conda/bin/conda create --name py36 python=$PYTHON_VERSION
+     /opt/conda/bin/conda create --name py38 python=$PYTHON_VERSION
 
 ENV PATH /opt/conda/bin:$PATH
 
@@ -38,10 +38,10 @@ RUN mkdir ~/.mujoco && \
 
 RUN git clone https://github.com/XinyuCai1919/pixel-representations-RL.git && \
         conda init bash && . ~/.bashrc && \
-        conda activate py36 && \
+        conda activate py38 && \
         cd  ./pixel-representations-RL && \
         pip install -r requirements.txt && \
         pip install torch==1.9.0+cu111 torchvision==0.10.0+cu111 torchaudio==0.9.0 -f https://download.pytorch.org/whl/torch_stable.html
 #    conda install pytorch torchvision torchaudio cudatoolkit=11.3 -c pytorch
 
-RUN echo "conda activate py36" >> ~/.bashrc
+RUN echo "conda activate py38" >> ~/.bashrc
