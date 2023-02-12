@@ -37,9 +37,9 @@ RUN mkdir ~/.mujoco && \
 
 
 RUN git clone https://github.com/XinyuCai1919/pixel-representations-RL.git && \
-        cd  ./pixel-representations-RL && \
         conda init bash && . ~/.bashrc && \
         conda activate py36 && \
+        cd  ./pixel-representations-RL && \
         pip install -r requirements.txt && \
         pip install torch==1.9.0+cu111 torchvision==0.10.0+cu111 torchaudio==0.9.0 -f https://download.pytorch.org/whl/torch_stable.html
 #    conda install pytorch torchvision torchaudio cudatoolkit=11.3 -c pytorch
