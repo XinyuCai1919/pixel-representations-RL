@@ -13,11 +13,10 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-instal
          python3-dev \
          zlib1g-dev \
          libgl1-mesa-glx \
-         libharfbuzz-dev libfribidi-dev libxcb1-devswig && \
-    apt-get update && \
-    apt-get install libtiff5-dev libjpeg8-dev libopenjp2-7-dev zlib1g-dev \
-         libfreetype6-dev liblcms2-dev libwebp-dev tcl8.6-dev tk8.6-dev python3-tk && \
-    rm -rf /var/lib/apt/lists/*
+         libtiff5-dev libjpeg8-dev libopenjp2-7-dev zlib1g-dev \
+         libfreetype6-dev liblcms2-dev libwebp-dev tcl8.6-dev tk8.6-dev python3-tk \
+         libharfbuzz-dev libfribidi-dev && \
+     rm -rf /var/lib/apt/lists/*
 
 # Install Anaconda and dependencies
 RUN curl -o ~/miniconda.sh https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
