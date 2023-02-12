@@ -29,8 +29,8 @@ ENV PATH /opt/conda/bin:$PATH
 
 RUN mkdir ~/.mujoco && \
     cd ~/.mujoco \
-    curl -o ./mujoco200.zip https://www.roboti.us/download/mujoco200_linux.zip && \
-    unzip mujoco200.zip && \
+    curl -o mujoco200_linux.zip https://www.roboti.us/download/mujoco200_linux.zip && \
+    unzip mujoco200_linux.zip && \
     move mujoco200_linux mujoco200 && \
     echo "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/root/.mujoco/mujoco200/bin" >> ~/.bashrc && \
     curl -o ./mjkey.txt https://www.roboti.us/file/mjkey.txt && \
