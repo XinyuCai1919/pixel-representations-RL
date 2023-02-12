@@ -23,19 +23,19 @@ RUN chmod +x ~/miniconda.sh && \
 
 ENV PATH /opt/conda/bin:$PATH
 
-RUN mkdir ~/.mujoco && \
-    cd ~/.mujoco \
-    curl -o ./mujoco200.zip https://www.roboti.us/download/mujoco200_linux.zip && \
-    unzip mujoco200.zip && \
-    curl -o ./mjkey.txt mjkey.txt && \
-
-
-RUN git clone https://github.com/XinyuCai1919/pixel-representations-RL.git && \
-        cd  ./pixel-representations-RL && \
-        conda init bash && . ~/.bashrc && \
-        conda activate py36 && \
-        pip install -r requirements.txt && \
-        pip install torch==1.9.0+cu111 torchvision==0.10.0+cu111 torchaudio==0.9.0 -f https://download.pytorch.org/whl/torch_stable.html
-#    conda install pytorch torchvision torchaudio cudatoolkit=11.3 -c pytorch
+#RUN mkdir ~/.mujoco && \
+#    cd ~/.mujoco \
+#    curl -o ./mujoco200.zip https://www.roboti.us/download/mujoco200_linux.zip && \
+#    unzip mujoco200.zip && \
+#    curl -o ./mjkey.txt mjkey.txt && \
+#
+#
+#RUN git clone https://github.com/XinyuCai1919/pixel-representations-RL.git && \
+#        cd  ./pixel-representations-RL && \
+#        conda init bash && . ~/.bashrc && \
+#        conda activate py36 && \
+#        pip install -r requirements.txt && \
+#        pip install torch==1.9.0+cu111 torchvision==0.10.0+cu111 torchaudio==0.9.0 -f https://download.pytorch.org/whl/torch_stable.html
+##    conda install pytorch torchvision torchaudio cudatoolkit=11.3 -c pytorch
 
 RUN echo "conda activate py36" >> ~/.bashrc
