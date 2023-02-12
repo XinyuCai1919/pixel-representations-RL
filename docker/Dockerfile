@@ -31,7 +31,8 @@ RUN mkdir ~/.mujoco && \
     cd ~/.mujoco && \
     curl -o mujoco200_linux.zip https://www.roboti.us/download/mujoco200_linux.zip && \
     unzip mujoco200_linux.zip && \
-    echo "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/root/.mujoco/mujoco200_linux/bin" >> ~/.bashrc && \
+    mv mujoco200_linux mujoco200 && \
+    echo "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/root/.mujoco/mujoco200/bin" >> ~/.bashrc && \
     curl -o ./mjkey.txt https://www.roboti.us/file/mjkey.txt
 
 
