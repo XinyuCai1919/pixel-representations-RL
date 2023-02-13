@@ -1,9 +1,9 @@
-. scripts/run.sh cartpole 1 2 3 3
-. scripts/run.sh cheetah 1 2 3 3
-. scripts/run.sh finger 1 2 3 3
-. scripts/run.sh hopper 1 2 3 3
-. scripts/run.sh reacher 1 2 3 3
-. scripts/run.sh walker 1 2 3 3
+. scripts/run.sh cartpole 0 1 2 3
+. scripts/run.sh cheetah 0 1 2 3
+. scripts/run.sh finger 0 1 2 3
+. scripts/run.sh hopper 0 1 2 3
+. scripts/run.sh reacher 0 1 2 3
+. scripts/run.sh walker 0 1 2 3
 
 
 

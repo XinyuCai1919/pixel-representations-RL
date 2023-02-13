@@ -8,6 +8,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-instal
          git \
          curl \
          zip \
+         ffmpeg \
          unzip \
          libopenmpi-dev \
          python3-dev \
@@ -41,7 +42,10 @@ RUN git clone https://github.com/XinyuCai1919/pixel-representations-RL.git && \
         conda activate py38 && \
         cd  ./pixel-representations-RL && \
         pip install -r requirements.txt && \
-        pip install torch==1.9.0+cu111 torchvision==0.10.0+cu111 torchaudio==0.9.0 -f https://download.pytorch.org/whl/torch_stable.html
+        pip install dm_control && \
+    pip install protobuf==3.20 && \
+    pip install  \
+    pip install torch==1.9.0+cu111 torchvision==0.10.0+cu111 torchaudio==0.9.0 -f https://download.pytorch.org/whl/torch_stable.html
 #    conda install pytorch torchvision torchaudio cudatoolkit=11.3 -c pytorch
 
 RUN echo "conda activate py38" >> ~/.bashrc
