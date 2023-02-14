@@ -248,21 +248,21 @@ class Block(nn.Module):
         mlp_hidden_dim = int(dim * mlp_ratio)
         self.cur_layer = moe_layers[cur_depth] if moe_layers is not None else 'F'
         self.moe_drop = nn.Dropout(0.1)
-        self.is_tutel = is_tutel
+        # self.is_tutel = is_tutel
         self.aux_loss_weights = 0.01
-        if self.cur_layer == 'S':
-            # print(f'cur_layer {cur_depth} is sparse with {num_experts} experts with BPR True')
-            self.mlp = tutel_moe.moe_layer(
-                gate_type={'type': router, 'k': 1, 'fp32_gate': True, 'gate_noise': 1.0, 'capacity_factor': 1.5},
-                experts={'type': 'ffn', 'count_per_node': num_experts,
-                         'hidden_size_per_expert': mlp_hidden_dim,
-                         'activation_fn': lambda x: self.moe_drop(F.gelu(x))},
-                model_dim=dim,
-                batch_prioritized_routing=True,
-                is_gshard_loss=False,
-            )
-        else:
-            self.mlp = Mlp(in_features=dim, hidden_features=mlp_hidden_dim, act_layer=act_layer, drop=drop)
+        # if self.cur_layer == 'S':
+        #     # print(f'cur_layer {cur_depth} is sparse with {num_experts} experts with BPR True')
+        #     self.mlp = tutel_moe.moe_layer(
+        #         gate_type={'type': router, 'k': 1, 'fp32_gate': True, 'gate_noise': 1.0, 'capacity_factor': 1.5},
+        #         experts={'type': 'ffn', 'count_per_node': num_experts,
+        #                  'hidden_size_per_expert': mlp_hidden_dim,
+        #                  'activation_fn': lambda x: self.moe_drop(F.gelu(x))},
+        #         model_dim=dim,
+        #         batch_prioritized_routing=True,
+        #         is_gshard_loss=False,
+        #     )
+        # else:
+        self.mlp = Mlp(in_features=dim, hidden_features=mlp_hidden_dim, act_layer=act_layer, drop=drop)
 
     def forward(self, x, return_attention=False):
         if return_attention:

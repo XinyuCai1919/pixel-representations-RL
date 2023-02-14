@@ -136,6 +136,9 @@ def make_encoder(
     encoder_type, obs_shape, feature_dim, num_layers, num_filters, output_logits=False
 ):
     assert encoder_type in _AVAILABLE_ENCODERS
-    return _AVAILABLE_ENCODERS[encoder_type](
-        obs_shape, feature_dim, num_layers, num_filters, output_logits
-    )
+    if encoder_type == 'vit':
+        pass
+    else:
+        return _AVAILABLE_ENCODERS[encoder_type](
+            obs_shape, feature_dim, num_layers, num_filters, output_logits
+        )
