@@ -108,7 +108,7 @@ def evaluate(env, agent, video, num_episodes, L, step, args):
             while not done:
                 # center crop image
                 if args.encoder_type == 'pixel' and 'crop' in args.data_augs:
-                    obs = utils.center_crop_image(obs,args.pre_transform_image_size)
+                    obs = utils.center_crop_image(obs,args.image_size)
                 if args.encoder_type == 'pixel' and 'translate' in args.data_augs:
                     # first crop the center with pre_image_size
                     obs = utils.center_crop_image(obs, args.pre_transform_image_size)
@@ -268,7 +268,7 @@ def main():
     )
 
     agent = PixelSacAgent(
-        obs_shape=pre_aug_obs_shape,
+        obs_shape=obs_shape,
         action_shape=action_shape,
         horizon=args.horizon,
         device=device,

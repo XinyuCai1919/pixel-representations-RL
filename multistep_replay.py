@@ -357,7 +357,7 @@ class ReplayBufferPixelMultistep(object):
         return obses, actions, rewards, next_obses, not_dones
 
 
-    def sample_multistep(self):
+    def sample_multistep(self, augs_funcs=None):
         assert self.batch_size < self.idx or self.full
 
         T = self.horizon
@@ -382,7 +382,15 @@ class ReplayBufferPixelMultistep(object):
         obses, actions, rewards, not_dones = [], [], [], []
 
         for t in range(T):
-            obses.append(self.obses[start_idxs + t])
+            obs = self.obses[start_idxs + t]
+            if augs_funcs:
+                for aug, func in augs_funcs.items():
+                    # apply crop and cutout first
+                    if 'crop' in aug or 'cutout' in aug:
+                        obs = func(obs)
+                        # obses.append(obs)
+                        # next_obs = func(next_obs)
+            obses.append(obs)
             actions.append(self.actions[start_idxs + t])
             rewards.append(self.rewards[start_idxs + t])
             not_dones.append(self.not_dones[start_idxs + t])

@@ -18,7 +18,7 @@ OUT_DIM = {2: 39, 4: 35, 6: 31}
 OUT_DIM_84 = {2: 29, 4: 35, 6: 21}
 OUT_DIM_100 = {4: 43}
 
- 
+
 class PixelEncoder(nn.Module):
     """Convolutional encoder of pixels observations."""
     def __init__(self, obs_shape, feature_dim, num_layers=2, num_filters=32,output_logits=False):

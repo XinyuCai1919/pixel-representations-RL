@@ -144,7 +144,7 @@ class PixelSacAgent(BaseSacAgent):
     def update(self, replay_buffer, L, step):
         if self.encoder_type == 'pixel':
 
-            batch_obs, batch_action, batch_reward, batch_not_done = replay_buffer.sample_multistep()
+            batch_obs, batch_action, batch_reward, batch_not_done = replay_buffer.sample_multistep(self.augs_funcs)
 
             obs = batch_obs[0]
             action = batch_action[0]
