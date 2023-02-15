@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-
+import models_mae
 
 def tie_weights(src, trg):
     assert type(src) == type(trg)
@@ -129,7 +129,7 @@ class IdentityEncoder(nn.Module):
         pass
 
 
-_AVAILABLE_ENCODERS = {'pixel': PixelEncoder, 'identity': IdentityEncoder}
+_AVAILABLE_ENCODERS = {'pixel': PixelEncoder, 'identity': IdentityEncoder, 'vit': models_mae.mae_vit_base_patch12_dec64d4b}
 
 
 def make_encoder(
@@ -137,7 +137,8 @@ def make_encoder(
 ):
     assert encoder_type in _AVAILABLE_ENCODERS
     if encoder_type == 'vit':
-        pass
+        return models_mae.mae_vit_base_patch12_dec64d4b(img_size=obs_shape[-1], in_chans=obs_shape[0],
+                                                        latent_feature_dim=feature_dim)
     else:
         return _AVAILABLE_ENCODERS[encoder_type](
             obs_shape, feature_dim, num_layers, num_filters, output_logits

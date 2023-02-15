@@ -52,21 +52,18 @@ def weight_init(m):
 class Actor(nn.Module):
     """MLP actor network."""
     def __init__(
-        self, obs_shape, action_shape, hidden_dim, encoder_type,
-        encoder_feature_dim, log_std_min, log_std_max, num_layers, num_filters
+        self, action_shape, hidden_dim,
+        encoder_feature_dim, encoder, log_std_min, log_std_max
     ):
         super().__init__()
 
-        self.encoder = make_encoder(
-            encoder_type, obs_shape, encoder_feature_dim, num_layers,
-            num_filters, output_logits=True
-        )
+        self.encoder = encoder
 
         self.log_std_min = log_std_min
         self.log_std_max = log_std_max
 
         self.trunk = nn.Sequential(
-            nn.Linear(self.encoder.feature_dim, hidden_dim), nn.ReLU(),
+            nn.Linear(encoder_feature_dim, hidden_dim), nn.ReLU(),
             nn.Linear(hidden_dim, hidden_dim), nn.ReLU(),
             nn.Linear(hidden_dim, 2 * action_shape[0])
         )
@@ -140,22 +137,18 @@ class QFunction(nn.Module):
 class Critic(nn.Module):
     """Critic network, employes two q-functions."""
     def __init__(
-        self, obs_shape, action_shape, hidden_dim, encoder_type,
-        encoder_feature_dim, num_layers, num_filters
+        self, action_shape, hidden_dim,
+        encoder_feature_dim, encoder
     ):
         super().__init__()
 
-
-        self.encoder = make_encoder(
-            encoder_type, obs_shape, encoder_feature_dim, num_layers,
-            num_filters, output_logits=True
-        )
+        self.encoder = encoder
 
         self.Q1 = QFunction(
-            self.encoder.feature_dim, action_shape[0], hidden_dim
+            encoder_feature_dim, action_shape[0], hidden_dim
         )
         self.Q2 = QFunction(
-            self.encoder.feature_dim, action_shape[0], hidden_dim
+            encoder_feature_dim, action_shape[0], hidden_dim
         )
 
         self.outputs = dict()
@@ -263,25 +256,27 @@ class BaseSacAgent(object):
             assert aug_name in aug_to_func, 'invalid data aug string'
             self.augs_funcs[aug_name] = aug_to_func[aug_name]
 
+        encoder = make_encoder(
+            encoder_type, obs_shape, encoder_feature_dim, num_layers,
+            num_filters, output_logits=True
+        )
+
         self.actor = Actor(
-            obs_shape, action_shape, hidden_dim, encoder_type,
-            encoder_feature_dim, actor_log_std_min, actor_log_std_max,
-            num_layers, num_filters
+            action_shape, hidden_dim, encoder_feature_dim, encoder,
+            actor_log_std_min, actor_log_std_max,
         ).to(device)
 
         self.critic = Critic(
-            obs_shape, action_shape, hidden_dim, encoder_type,
-            encoder_feature_dim, num_layers, num_filters
+            action_shape, hidden_dim, encoder_feature_dim, encoder,
         ).to(device)
 
         self.critic_target = Critic(
-            obs_shape, action_shape, hidden_dim, encoder_type,
-            encoder_feature_dim, num_layers, num_filters
+            action_shape, hidden_dim, encoder_feature_dim, encoder,
         ).to(device)
 
         self.critic_target.load_state_dict(self.critic.state_dict())
 
-        self.actor.encoder.copy_conv_weights_from(self.critic.encoder)
+        # self.actor.encoder.copy_conv_weights_from(self.critic.encoder)
 
         self.log_alpha = torch.tensor(np.log(init_temperature)).to(device)
         self.log_alpha.requires_grad = True
