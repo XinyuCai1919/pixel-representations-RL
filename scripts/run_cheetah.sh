@@ -1,4 +1,4 @@
-MUJOCO_GL="osmesa" CUDA_VISIBLE_DEVICES=$3 python train.py \
+MUJOCO_GL="osmesa" CUDA_VISIBLE_DEVICES=$3 python train.py --encoder_type $5 \
     --domain_name cheetah --task_name run --case $1 --work_dir ./log \
     --action_repeat 4 --frame_stack 3 --data_augs $2  \
     --seed $4 --critic_lr 2e-4 --actor_lr 2e-4 --decoder_lr 2e-4 --encoder_lr 2e-4\

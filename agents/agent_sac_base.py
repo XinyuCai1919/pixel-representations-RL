@@ -91,7 +91,7 @@ class PixelSacAgent(BaseSacAgent):
         )
 
 
-        if self.encoder_type == 'pixel':
+        if self.encoder_type == 'pixel' or 'vit':
 
             self.transition_model = MultiStepDynamicsModel(
                                                     obs_dim=encoder_feature_dim, 
@@ -142,7 +142,7 @@ class PixelSacAgent(BaseSacAgent):
         return loss, reward_loss
 
     def update(self, replay_buffer, L, step):
-        if self.encoder_type == 'pixel':
+        if self.encoder_type == 'pixel' or 'vit':
 
             batch_obs, batch_action, batch_reward, batch_not_done = replay_buffer.sample_multistep(self.augs_funcs)
 
