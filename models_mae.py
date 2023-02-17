@@ -19,12 +19,6 @@ from timm.models.vision_transformer import PatchEmbed, Block
 from pos_embed4mae import get_2d_sincos_pos_embed
 
 
-def tie_weights(src, trg):
-    assert type(src) == type(trg)
-    trg.weight = src.weight
-    trg.bias = src.bias
-
-
 class MaskedAutoencoderViT(nn.Module):
     """ Masked Autoencoder with VisionTransformer backbone
     """
@@ -244,6 +238,8 @@ class MaskedAutoencoderViT(nn.Module):
         # TODO tie blocks
         pass
 
+    def log(self, L, step, log_freq):
+        pass
 
 
 def mae_vit_base_patch16_dec512d8b(**kwargs):

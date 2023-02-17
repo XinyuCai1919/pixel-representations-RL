@@ -356,7 +356,6 @@ class ReplayBufferPixelMultistep(object):
 
         return obses, actions, rewards, next_obses, not_dones
 
-
     def sample_multistep(self, augs_funcs=None):
         assert self.batch_size < self.idx or self.full
 
