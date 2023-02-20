@@ -235,7 +235,7 @@ def main():
     ts = time.strftime("%m-%d", ts)    
     env_name = args.domain_name + '-' + args.task_name
     exp_name = 'case-' + args.case + '-h' + str(args.horizon) + '-' + env_name + '-' + ts + '-im' + str(args.image_size) +'-b'  \
-    + str(args.batch_size) + '-s' + str(args.seed) + '-' + args.encoder_type + '-' + args.data_augs  + '-' + args.mask_ratio
+    + str(args.batch_size) + '-s' + str(args.seed) + '-' + args.encoder_type + '-' + args.data_augs  + '-' + str(args.mask_ratio)
     args.work_dir = args.work_dir + '/' + exp_name
 
     utils.make_dir(args.work_dir)
