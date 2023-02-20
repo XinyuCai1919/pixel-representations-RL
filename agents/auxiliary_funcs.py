@@ -72,9 +72,9 @@ class Actor(nn.Module):
         self.apply(weight_init)
 
     def forward(
-        self, obs, compute_pi=True, compute_log_pi=True, detach_encoder=False
+        self, obs, compute_pi=True, compute_log_pi=True, detach_encoder=False, mask_ratio=0.75
     ):
-        obs = self.encoder(obs, detach=detach_encoder)
+        obs = self.encoder(obs, mask_ratio=mask_ratio, detach=detach_encoder)
 
         mu, log_std = self.trunk(obs).chunk(2, dim=-1)
 
@@ -314,14 +314,14 @@ class BaseSacAgent(object):
             )
             return mu.cpu().data.numpy().flatten()
 
-    def sample_action(self, obs):
+    def sample_action(self, obs, mask_ratio=0.75):
         if obs.shape[-1] != self.image_size:
             obs = utils.center_crop_image(obs, self.image_size)
  
         with torch.no_grad():
             obs = torch.FloatTensor(obs).to(self.device)
             obs = obs.unsqueeze(0)
-            mu, pi, _, _ = self.actor(obs, compute_log_pi=False)
+            mu, pi, _, _ = self.actor(obs, compute_log_pi=False, mask_ratio=mask_ratio)
             return pi.cpu().data.numpy().flatten()
 
     def update_critic(self, obs, action, reward, next_obs, not_done, L, step):

@@ -68,6 +68,7 @@ def parse_args():
     parser.add_argument('--num_filters', default=32, type=int)
     parser.add_argument('--latent_dim', default=128, type=int)
     parser.add_argument('--metric_loss', default=False, action='store_true')
+    parser.add_argument('--mask_ratio', default=0.75, type=float)
     # sac
     parser.add_argument('--discount', default=0.99, type=float)
     parser.add_argument('--init_temperature', default=0.1, type=float)
@@ -234,7 +235,7 @@ def main():
     ts = time.strftime("%m-%d", ts)    
     env_name = args.domain_name + '-' + args.task_name
     exp_name = 'case-' + args.case + '-h' + str(args.horizon) + '-' + env_name + '-' + ts + '-im' + str(args.image_size) +'-b'  \
-    + str(args.batch_size) + '-s' + str(args.seed) + '-' + args.encoder_type + '-' + args.data_augs
+    + str(args.batch_size) + '-s' + str(args.seed) + '-' + args.encoder_type + '-' + args.data_augs  + '-' + args.mask_ratio
     args.work_dir = args.work_dir + '/' + exp_name
 
     utils.make_dir(args.work_dir)

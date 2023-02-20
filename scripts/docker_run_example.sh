@@ -4,3 +4,4 @@ docker run -v /home/xycai/pixel-representations-RL:/opt/project --runtime=nvidia
 
 docker run -v /home/xycai/pixel-representations-RL:/opt/project --gpus==all --cpus==40\
             -w /opt/project -it --rm cxy/py38:0.2  bash
+
