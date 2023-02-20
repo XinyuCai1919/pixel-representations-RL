@@ -118,9 +118,9 @@ def evaluate(env, agent, video, num_episodes, L, step, args):
                     
                 with utils.eval_mode(agent):
                     if sample_stochastically:
-                        action = agent.sample_action(obs / 255.)
+                        action = agent.sample_action(obs / 255., args.mask_ratio)
                     else:
-                        action = agent.select_action(obs / 255.)
+                        action = agent.select_action(obs / 255., args.mask_ratio)
                 obs, reward, done, _ = env.step(action)
                 video.record(env)
                 episode_reward += reward
@@ -341,7 +341,7 @@ def main():
             action = env.action_space.sample()
         else:
             with utils.eval_mode(agent):
-                action = agent.sample_action(obs / 255.)
+                action = agent.sample_action(obs / 255., mask_ratio=args.mask_ratio)
 
         # run training update
         if step >= args.init_steps:

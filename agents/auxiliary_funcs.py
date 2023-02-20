@@ -305,12 +305,12 @@ class BaseSacAgent(object):
     def alpha(self):
         return self.log_alpha.exp()
 
-    def select_action(self, obs):
+    def select_action(self, obs, mask_ratio=0.75):
         with torch.no_grad():
             obs = torch.FloatTensor(obs).to(self.device)
             obs = obs.unsqueeze(0)
             mu, _, _, _ = self.actor(
-                obs, compute_pi=False, compute_log_pi=False
+                obs, compute_pi=False, compute_log_pi=False, mask_ratio=mask_ratio
             )
             return mu.cpu().data.numpy().flatten()
 
