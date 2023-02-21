@@ -108,9 +108,9 @@ def evaluate(env, agent, video, num_episodes, L, step, args):
             episode_reward = 0
             while not done:
                 # center crop image
-                if (args.encoder_type == 'pixel' or 'vit') and 'crop' in args.data_augs:
+                if (args.encoder_type == 'pixel' or 'vit' in args.encoder_type) and 'crop' in args.data_augs:
                     obs = utils.center_crop_image(obs, args.image_size)
-                if (args.encoder_type == 'pixel' or 'vit') and 'translate' in args.data_augs:
+                if (args.encoder_type == 'pixel' or 'vit' in args.encoder_type) and 'translate' in args.data_augs:
                     # first crop the center with pre_image_size
                     obs = utils.center_crop_image(obs, args.pre_transform_image_size)
                     # then translate cropped to center
@@ -201,7 +201,7 @@ def main():
         total_frames=args.total_frames,
         seed=args.seed,
         visualize_reward=False,
-        from_pixels=(args.encoder_type == 'pixel' or 'vit'),
+        from_pixels=(args.encoder_type == 'pixel' or 'vit' in args.encoder_type),
         height=pre_transform_image_size,
         width=pre_transform_image_size,
         frame_skip=args.action_repeat,
@@ -217,7 +217,7 @@ def main():
         total_frames=args.total_frames,
         seed=args.seed,
         visualize_reward=False,
-        from_pixels=(args.encoder_type == 'pixel' or 'vit'),
+        from_pixels=(args.encoder_type == 'pixel' or 'vit' in args.encoder_type),
         height=pre_transform_image_size,
         width=pre_transform_image_size,
         frame_skip=args.action_repeat,
@@ -226,7 +226,7 @@ def main():
     eval_env.seed(args.seed)
 
     # stack several consecutive frames together
-    if args.encoder_type == 'pixel' or 'vit':
+    if args.encoder_type == 'pixel' or 'vit' in args.encoder_type:
         env = utils.FrameStack(env, k=args.frame_stack)
         eval_env = utils.FrameStack(eval_env, k=args.frame_stack)
     
@@ -254,7 +254,7 @@ def main():
 
     action_shape = env.action_space.shape
 
-    if args.encoder_type == 'pixel' or 'vit':
+    if args.encoder_type == 'pixel' or 'vit' in args.encoder_type:
         obs_shape = (3*args.frame_stack, args.image_size, args.image_size)
         pre_aug_obs_shape = (3*args.frame_stack,pre_transform_image_size,pre_transform_image_size)
 
