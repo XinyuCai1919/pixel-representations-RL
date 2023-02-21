@@ -71,7 +71,7 @@ class PixelEncoder(nn.Module):
 
         return h
 
-    def forward(self, obs, detach=False):
+    def forward(self, obs, detach=False, mask_ratio=0.0):
         h = self.forward_conv(obs)
 
         if detach:
@@ -135,10 +135,20 @@ _AVAILABLE_ENCODERS = {'pixel': PixelEncoder, 'identity': IdentityEncoder, 'vit'
 def make_encoder(
     encoder_type, obs_shape, feature_dim, num_layers, num_filters, output_logits=False
 ):
-    assert encoder_type in _AVAILABLE_ENCODERS
-    if encoder_type == 'vit':
-        return models_mae.mae_vit_base_patch12_dec64d4b(img_size=obs_shape[-1], in_chans=obs_shape[0],
-                                                        latent_feature_dim=feature_dim)
+    # assert encoder_type in _AVAILABLE_ENCODERS
+    if 'vit' in encoder_type:
+        if encoder_type == 'mae_vit_base_patch12_dec64d4b':
+            return models_mae.mae_vit_base_patch12_dec64d4b(img_size=obs_shape[-1], in_chans=obs_shape[0],
+                                                            latent_feature_dim=feature_dim)
+        if encoder_type == 'mae_vit_large_patch12_h4d4_dec512d4b':
+            return models_mae.mae_vit_large_patch12_h4d4_dec512d4b(img_size=obs_shape[-1], in_chans=obs_shape[0],
+                                                                   latent_feature_dim=feature_dim)
+        if encoder_type == 'mae_vit_large_patch12_h12d4_dec512d4b':
+            return models_mae.mae_vit_large_patch12_h12d4_dec512d4b(img_size=obs_shape[-1], in_chans=obs_shape[0],
+                                                                    latent_feature_dim=feature_dim)
+        if encoder_type == 'mae_vit_large_patch12_h12d8_dec512d4b':
+            return models_mae.mae_vit_large_patch12_h12d8_dec512d4b(img_size=obs_shape[-1], in_chans=obs_shape[0],
+                                                                    latent_feature_dim=feature_dim)
     else:
         return _AVAILABLE_ENCODERS[encoder_type](
             obs_shape, feature_dim, num_layers, num_filters, output_logits
