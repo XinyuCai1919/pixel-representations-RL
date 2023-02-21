@@ -146,8 +146,8 @@ def make_encoder(
         if encoder_type == 'mae_vit_large_patch12_h12d4_dec512d4b':
             return models_mae.mae_vit_large_patch12_h12d4_dec512d4b(img_size=obs_shape[-1], in_chans=obs_shape[0],
                                                                     latent_feature_dim=feature_dim)
-        if encoder_type == 'mae_vit_large_patch12_h12d8_dec512d4b':
-            return models_mae.mae_vit_large_patch12_h12d8_dec512d4b(img_size=obs_shape[-1], in_chans=obs_shape[0],
+        if encoder_type == 'mae_vit_small_patch6_h3d6_dec192d3b':
+            return models_mae.mae_vit_small_patch6_h3d6_dec192d3b(img_size=obs_shape[-1], in_chans=obs_shape[0],
                                                                     latent_feature_dim=feature_dim)
     else:
         return _AVAILABLE_ENCODERS[encoder_type](
