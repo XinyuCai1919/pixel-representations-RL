@@ -224,7 +224,7 @@ class MaskedAutoencoderViT(nn.Module):
         latent, mask, ids_restore = self.forward_encoder(imgs, mask_ratio)
         # pred = self.forward_decoder(latent, ids_restore)  # [N, L, p*p*3]
         # loss = self.forward_loss(imgs, pred, mask)
-        latent = self.linear(latent.mean(1))
+        # latent = self.linear(latent.mean(1))
         latent = self.linear(latent[:, 0])
         if detach:
             latent = latent.detach()
