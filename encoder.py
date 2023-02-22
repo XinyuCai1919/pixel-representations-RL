@@ -149,6 +149,9 @@ def make_encoder(
         if encoder_type == 'mae_vit_small_patch6_h3d6_dec192d3b':
             return models_mae.mae_vit_small_patch6_h3d6_dec192d3b(img_size=obs_shape[-1], in_chans=obs_shape[0],
                                                                     latent_feature_dim=feature_dim)
+        if encoder_type == 'mae_vit_small_patch12_h3d6_dec192d3b':
+            return models_mae.mae_vit_small_patch12_h3d6_dec192d3b(img_size=obs_shape[-1], in_chans=obs_shape[0],
+                                                                    latent_feature_dim=feature_dim)
     else:
         return _AVAILABLE_ENCODERS[encoder_type](
             obs_shape, feature_dim, num_layers, num_filters, output_logits
