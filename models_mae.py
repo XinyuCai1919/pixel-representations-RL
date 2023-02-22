@@ -222,8 +222,8 @@ class MaskedAutoencoderViT(nn.Module):
 
     def forward(self, imgs, mask_ratio=0.0, detach=False):
         latent, mask, ids_restore = self.forward_encoder(imgs, mask_ratio)
-        pred = self.forward_decoder(latent, ids_restore)  # [N, L, p*p*3]
-        loss = self.forward_loss(imgs, pred, mask)
+        # pred = self.forward_decoder(latent, ids_restore)  # [N, L, p*p*3]
+        # loss = self.forward_loss(imgs, pred, mask)
         latent = self.linear(latent.mean(1))
         if detach:
             latent = latent.detach()
@@ -304,6 +304,7 @@ def mae_vit_small_patch6_h3d6_dec192d3b(**kwargs):
         decoder_embed_dim=192, decoder_depth=6, decoder_num_heads=6,
         mlp_ratio=4, norm_layer=partial(nn.LayerNorm, eps=1e-6), **kwargs)
     return model
+
 
 
 # set recommended archs
