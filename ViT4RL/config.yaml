@@ -19,7 +19,7 @@ resource_files: '/home/xycai/pixel-representations-RL/distractors/driving/*.mp4'
 # See Dreamer TF2's implementation: https://github.com/danijar/dreamer/blob/02f0210f5991c7710826ca7881f19c64a012290c/dreamer.py#L340
 action_repeat: 2
 # train
-num_train_steps: 1500000
+num_train_steps: 500000
 num_train_iters: 1
 num_seed_steps: 1000
 replay_buffer_capacity: 100000
