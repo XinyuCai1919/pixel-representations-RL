@@ -2,6 +2,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torch.nn.parallel import DataParallel
 import copy
 import math
 
@@ -47,6 +48,18 @@ def weight_init(m):
         mid = m.weight.size(2) // 2
         gain = nn.init.calculate_gain('relu')
         nn.init.orthogonal_(m.weight.data[:, :, mid, mid], gain)
+
+
+class CustomDataParallel(DataParallel):
+    def __init__(self, *args, **kwargs):
+        super(CustomDataParallel, self).__init__(*args, **kwargs)
+
+    def __getitem__(self, name):
+        return getattr(self.module, name)
+
+    @property
+    def device(self):
+        return self.device_ids[0] if self.device_ids is not None else None
 
 
 class Actor(nn.Module):
@@ -296,6 +309,45 @@ class BaseSacAgent(object):
             [self.log_alpha], lr=alpha_lr, betas=(alpha_beta, 0.999)
         )
 
+        self._device_ids = None
+        self._output_device = None
+        self._dim = None
+        self._be_data_parallel = False
+
+    def to_data_parallel(self, device_ids=None, output_device=None, axis=0):
+        self._device_ids = device_ids
+        self._output_device = output_device
+        self._dim = axis
+        self.recover_data_parallel()
+
+    def to_normal(self):
+        if self._be_data_parallel and self._device_ids is not None:
+            self._be_data_parallel = False
+            for module_name in dir(self):
+                item = getattr(self, module_name)
+                if isinstance(item, CustomDataParallel):
+                    setattr(self, module_name, item.module)
+
+    def recover_data_parallel(self):
+        if self._device_ids is None:
+            return
+        self._be_data_parallel = True
+        for module_name in dir(self):
+            item = getattr(self, module_name)
+            if isinstance(item, nn.Module):
+                setattr(self, module_name, CustomDataParallel(module=item, device_ids=self._device_ids,
+                                                              output_device=self._output_device, dim=self._dim))
+
+    def is_data_parallel(self):
+        return self._be_data_parallel
+
+    # @property
+    # def device(self):
+    #     if self._device_ids is None or not self._be_data_parallel:
+    #         return next(self.parameters()).device
+    #     else:
+    #         return self._device_ids[0]
+
     def train(self, training=True):
         self.training = training
         self.actor.train(training)
@@ -309,9 +361,14 @@ class BaseSacAgent(object):
         with torch.no_grad():
             obs = torch.FloatTensor(obs).to(self.device)
             obs = obs.unsqueeze(0)
-            mu, _, _, _ = self.actor(
-                obs, compute_pi=False, compute_log_pi=False, mask_ratio=mask_ratio
-            )
+            if self.is_data_parallel():
+                mu, _, _, _ = self.actor.module(
+                    obs, compute_pi=False, compute_log_pi=False, mask_ratio=mask_ratio
+                )
+            else:
+                mu, _, _, _ = self.actor(
+                    obs, compute_pi=False, compute_log_pi=False, mask_ratio=mask_ratio
+                )
             return mu.cpu().data.numpy().flatten()
 
     def sample_action(self, obs, mask_ratio=0.75):
@@ -321,20 +378,32 @@ class BaseSacAgent(object):
         with torch.no_grad():
             obs = torch.FloatTensor(obs).to(self.device)
             obs = obs.unsqueeze(0)
-            mu, pi, _, _ = self.actor(obs, compute_log_pi=False, mask_ratio=mask_ratio)
+            if self.is_data_parallel():
+                mu, pi, _, _ = self.actor.module(obs, compute_log_pi=False, mask_ratio=mask_ratio)
+            else:
+                mu, pi, _, _ = self.actor(obs, compute_log_pi=False, mask_ratio=mask_ratio)
+
             return pi.cpu().data.numpy().flatten()
 
     def update_critic(self, obs, action, reward, next_obs, not_done, L, step):
         with torch.no_grad():
-            _, policy_action, log_pi, _ = self.actor(next_obs)
-            target_Q1, target_Q2 = self.critic_target(next_obs, policy_action)
+            if self.is_data_parallel():
+                _, policy_action, log_pi, _ = self.actor.module(next_obs)
+                target_Q1, target_Q2 = self.critic_target.module(next_obs, policy_action)
+            else:
+                _, policy_action, log_pi, _ = self.actor(next_obs)
+                target_Q1, target_Q2 = self.critic_target(next_obs, policy_action)
             target_V = torch.min(target_Q1,
                                  target_Q2) - self.alpha.detach() * log_pi
             target_Q = reward + (not_done * self.discount * target_V)
 
         # get current Q estimates
-        current_Q1, current_Q2 = self.critic(
-            obs, action, detach_encoder=self.detach_encoder)
+        if self.is_data_parallel():
+            current_Q1, current_Q2 = self.critic.module(
+                obs, action, detach_encoder=self.detach_encoder)
+        else:
+            current_Q1, current_Q2 = self.critic(
+                obs, action, detach_encoder=self.detach_encoder)
         critic_loss = F.mse_loss(current_Q1,
                                  target_Q) + F.mse_loss(current_Q2, target_Q)
         
@@ -345,12 +414,19 @@ class BaseSacAgent(object):
         critic_loss.backward()
         self.critic_optimizer.step()
 
-        self.critic.log(L, step)
+        if self.is_data_parallel():
+            self.critic.module.log(L, step)
+        else:
+            self.critic.log(L, step)
 
     def update_actor_and_alpha(self, obs, L, step):
         # detach encoder, so we don't update it with the actor loss
-        _, pi, log_pi, log_std = self.actor(obs, detach_encoder=True)
-        actor_Q1, actor_Q2 = self.critic(obs, pi, detach_encoder=True)
+        if self.is_data_parallel():
+            _, pi, log_pi, log_std = self.actor.module(obs, detach_encoder=True)
+            actor_Q1, actor_Q2 = self.critic.module(obs, pi, detach_encoder=True)
+        else:
+            _, pi, log_pi, log_std = self.actor(obs, detach_encoder=True)
+            actor_Q1, actor_Q2 = self.critic(obs, pi, detach_encoder=True)
 
         actor_Q = torch.min(actor_Q1, actor_Q2)
         actor_loss = (self.alpha.detach() * log_pi - actor_Q).mean()
@@ -368,7 +444,10 @@ class BaseSacAgent(object):
         actor_loss.backward()
         self.actor_optimizer.step()
 
-        self.actor.log(L, step)
+        if self.is_data_parallel():
+            self.actor.module.log(L, step)
+        else:
+            self.actor.log(L, step)
 
         self.log_alpha_optimizer.zero_grad()
         alpha_loss = (self.alpha *
@@ -379,17 +458,27 @@ class BaseSacAgent(object):
         alpha_loss.backward()
         self.log_alpha_optimizer.step()
 
-
     def save(self, model_dir, step):
-        torch.save(
-            self.actor.state_dict(), '%s/actor_%s.pt' % (model_dir, step)
-        )
-        torch.save(
-            self.critic.state_dict(), '%s/critic_%s.pt' % (model_dir, step)
-        )
-        torch.save(
-            self.critic.encoder.state_dict(), '%s/critic_encoder_%s.pt' % (model_dir, step)
-        )
+        if self.is_data_parallel():
+            torch.save(
+                self.actor.module.state_dict(), '%s/actor_%s.pt' % (model_dir, step)
+            )
+            torch.save(
+                self.critic.module.state_dict(), '%s/critic_%s.pt' % (model_dir, step)
+            )
+            torch.save(
+                self.critic.module.encoder.state_dict(), '%s/critic_encoder_%s.pt' % (model_dir, step)
+            )
+        else:
+            torch.save(
+                self.actor.state_dict(), '%s/actor_%s.pt' % (model_dir, step)
+            )
+            torch.save(
+                self.critic.state_dict(), '%s/critic_%s.pt' % (model_dir, step)
+            )
+            torch.save(
+                self.critic.encoder.state_dict(), '%s/critic_encoder_%s.pt' % (model_dir, step)
+            )
 
     def load(self, model_dir, step):
         self.actor.load_state_dict(
