@@ -44,7 +44,11 @@ RUN git clone https://github.com/XinyuCai1919/pixel-representations-RL.git && \
     pip install -r requirements.txt && \
     pip install dm_control && \
     pip install protobuf==3.20 && \
-    pip install torch==1.9.0+cu111 torchvision==0.10.0+cu111 torchaudio==0.9.0 -f https://download.pytorch.org/whl/torch_stable.html
+    pip install torch==1.10.1+cu111 torchvision==0.11.2+cu111 torchaudio==0.10.1 -f https://download.pytorch.org/whl/cu111/torch_stable.html && \
+    pip install hydra-core==0.11 && \
+    pip install omegaconf==1.4 && \
+    pip install kornia
+
 #    conda install pytorch torchvision torchaudio cudatoolkit=11.3 -c pytorch
 
 RUN echo "conda activate py38" >> ~/.bashrc
