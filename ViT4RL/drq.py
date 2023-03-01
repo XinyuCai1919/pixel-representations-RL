@@ -208,7 +208,7 @@ class DRQAgent(object):
         Q1_aug, Q2_aug = self.critic(obs_aug, action)
 
         critic_loss += F.mse_loss(Q1_aug, target_Q) + F.mse_loss(
-            Q2_aug, target_Q) # + rec_loss
+            Q2_aug, target_Q) + rec_loss
 
         logger.log('train_critic/loss', critic_loss, step)
 
