@@ -126,17 +126,12 @@ class PixelSacAgent(BaseSacAgent):
         self.critic_target.train()
 
     def update_transition_model(self, obs, action, targets, rewards):
-        if self.is_data_parallel():
-            transition_next_states, _ = self.transition_model.module.forward(obs, action[:-1])
-        else:
-            transition_next_states, _ = self.transition_model.forward(obs, action[:-1])
-
+        
+        transition_next_states, _ = self.transition_model.forward(obs, action[:-1])
+        
         predicted_batch_rewards = []
         for en_iter in range(transition_next_states.size(0)):
-            if self.is_data_parallel():
-                pred_reward = self.reward_decoder.module(transition_next_states[en_iter])
-            else:
-                pred_reward = self.reward_decoder(transition_next_states[en_iter])
+            pred_reward = self.reward_decoder(transition_next_states[en_iter])
             predicted_batch_rewards.append(pred_reward)
 
         predicted_batch_rewards = torch.stack(predicted_batch_rewards).squeeze()
@@ -161,10 +156,7 @@ class PixelSacAgent(BaseSacAgent):
             encoded_batch_obs = []
 
             for en_iter in range(batch_obs.size(0)):
-                if self.is_data_parallel():
-                    encoded_obs = self.critic.module.encoder(batch_obs[en_iter])
-                else:
-                    encoded_obs = self.critic.encoder(batch_obs[en_iter])
+                encoded_obs = self.critic.encoder(batch_obs[en_iter])
                 encoded_batch_obs.append(encoded_obs)
                 
             encoded_batch_obs = torch.stack(encoded_batch_obs)
@@ -195,25 +187,13 @@ class PixelSacAgent(BaseSacAgent):
             self.update_actor_and_alpha(obs, L, step)
 
         if step % self.critic_target_update_freq == 0:
-            if self.is_data_parallel():
-                utils.soft_update_params(
-                    self.critic.module.Q1, self.critic_target.module.Q1, self.critic_tau
-                )
-                utils.soft_update_params(
-                    self.critic.module.Q2, self.critic_target.module.Q2, self.critic_tau
-                )
-                utils.soft_update_params(
-                    self.critic.module.encoder, self.critic_target.module.encoder,
-                    self.encoder_tau
-                )
-            else:
-                utils.soft_update_params(
-                    self.critic.Q1, self.critic_target.Q1, self.critic_tau
-                )
-                utils.soft_update_params(
-                    self.critic.Q2, self.critic_target.Q2, self.critic_tau
-                )
-                utils.soft_update_params(
-                    self.critic.encoder, self.critic_target.encoder,
-                    self.encoder_tau
-                )
+            utils.soft_update_params(
+                self.critic.Q1, self.critic_target.Q1, self.critic_tau
+            )
+            utils.soft_update_params(
+                self.critic.Q2, self.critic_target.Q2, self.critic_tau
+            )
+            utils.soft_update_params(
+                self.critic.encoder, self.critic_target.encoder,
+                self.encoder_tau
+            )

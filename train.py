@@ -19,10 +19,6 @@ from curl_sac import RadSacAgent
 from multistep_replay import ReplayBufferPixelMultistep
 import data_augs as rad
 
-os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"] = "0,1,2,3"
-
-
 def parse_args():
     parser = argparse.ArgumentParser()
     # environment
@@ -93,8 +89,6 @@ def parse_args():
     parser.add_argument('--off_center', default=False, action='store_true')
     # data augs
     parser.add_argument('--data_augs', default='no_aug', type=str)
-    # gpu device
-    parser.add_argument('--gpu_ids', default=None, type=int, nargs='+', help='ids of gpus to use')
 
     parser.add_argument('--log_interval', default=100, type=int)
     args = parser.parse_args()
@@ -256,7 +250,7 @@ def main():
     with open(os.path.join(args.work_dir, 'args.json'), 'w') as f:
         json.dump(vars(args), f, sort_keys=True, indent=4)
 
-    device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     action_shape = env.action_space.shape
 
@@ -307,9 +301,7 @@ def main():
         data_augs=args.data_augs,
         use_metric_loss=args.metric_loss
     )
-    if args.gpu_ids is not None:
-        torch.cuda.set_device(args.gpu_ids[0])
-        agent.to_data_parallel(device_ids=args.gpu_ids, output_device=torch.cuda.current_device())
+
 
     L = Logger(args.work_dir, use_tb=args.save_tb)
 
