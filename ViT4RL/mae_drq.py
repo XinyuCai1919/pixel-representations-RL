@@ -166,7 +166,7 @@ class DRQAgent(object):
 
     def update_critic(self, obs, obs_aug, action, reward, next_obs,
                       next_obs_aug, not_done, logger, step):
-        imgs = obs.detach()
+        # imgs = obs.detach()
         # aug_imgs = obs_aug.detach()
         # rec = self.critic_target.encoder.forward_rec(imgs)
         # rec = self.critic_target.encoder.byol_project(rec).detach()
@@ -204,7 +204,7 @@ class DRQAgent(object):
         Q1_aug, Q2_aug, _ = self.critic(obs_aug, action)
 
         critic_loss += F.mse_loss(Q1_aug, target_Q) + F.mse_loss(
-            Q2_aug, target_Q) + rec_loss
+            Q2_aug, target_Q) # + rec_loss
 
         logger.log('train_critic/loss', critic_loss, step)
 
