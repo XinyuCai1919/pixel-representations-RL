@@ -48,7 +48,8 @@ RUN git clone https://github.com/XinyuCai1919/pixel-representations-RL.git && \
     pip install hydra-core==0.11 && \
     pip install omegaconf==1.4 && \
     pip install --upgrade  typing_extensions && \
-    pip install kornia
+    pip install kornia && \
+    pip install einops
 
 #    conda install pytorch torchvision torchaudio cudatoolkit=11.3 -c pytorch
 
