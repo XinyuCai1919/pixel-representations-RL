@@ -188,7 +188,7 @@ class Workspace(object):
             self.step += 1
 
 
-@hydra.main(config_path='config_mae.yaml', strict=True)
+@hydra.main(config_path='config_distract.yaml', strict=True)
 def main(cfg):
     from train import Workspace as W
     workspace = W(cfg)
