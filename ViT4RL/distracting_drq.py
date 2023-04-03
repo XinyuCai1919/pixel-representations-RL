@@ -71,6 +71,12 @@ class Critic(nn.Module):
         self.Q2 = utils.mlp(50 + action_shape[0],
                             hidden_dim, 1, hidden_depth)
 
+        self.predict_reward = utils.mlp(50 + action_shape[0],
+                                        hidden_dim, 1, hidden_depth)
+
+        self.predict_next_obs = utils.mlp(50 + action_shape[0],
+                                          hidden_dim, 50, hidden_depth)
+
         self.outputs = dict()
         self.apply(utils.weight_init)
 
@@ -82,11 +88,13 @@ class Critic(nn.Module):
         q1 = self.Q1(obs_action)
         q2 = self.Q2(obs_action)
 
+        reward = self.predict_reward(obs_action)
+        next_obs = self.predict_next_obs(obs_action)
+
         self.outputs['q1'] = q1
         self.outputs['q2'] = q2
-        loss = None
 
-        return q1, q2, loss
+        return q1, q2, reward, next_obs
 
     def log(self, logger, step):
         # self.encoder.log(logger, step)
@@ -167,20 +175,11 @@ class DRQAgent(object):
 
     def update_critic(self, obs, obs_aug, action, reward, next_obs,
                       next_obs_aug, not_done, logger, step):
-        # imgs = obs.detach()
-        # aug_imgs = obs_aug.detach()
-        # rec = self.critic_target.encoder.forward_rec(imgs)
-        # rec = self.critic_target.encoder.byol_project(rec).detach()
-        # aug_rec = self.critic.encoder.forward_rec(aug_imgs)
-        # project_rec = self.critic.encoder.byol_project(aug_rec)
-        # predict_rec = self.critic.encoder.byol_predict(project_rec)
-        # rec_loss = F.mse_loss(predict_rec, rec)
-
         with torch.no_grad():
             dist = self.actor(next_obs)
             next_action = dist.rsample()
             log_prob = dist.log_prob(next_action).sum(-1, keepdim=True)
-            target_Q1, target_Q2, _ = self.critic_target(next_obs, next_action)
+            target_Q1, target_Q2, _, target_next_obs = self.critic_target(next_obs, next_action)
             target_V = torch.min(target_Q1,
                                  target_Q2) - self.alpha.detach() * log_prob
             target_Q = reward + (not_done * self.discount * target_V)
@@ -189,8 +188,8 @@ class DRQAgent(object):
             next_action_aug = dist_aug.rsample()
             log_prob_aug = dist_aug.log_prob(next_action_aug).sum(-1,
                                                                   keepdim=True)
-            target_Q1, target_Q2, _ = self.critic_target(next_obs_aug,
-                                                      next_action_aug)
+            target_Q1, target_Q2, _, target_next_obs_aug = self.critic_target(next_obs_aug,
+                                                                              next_action_aug)
             target_V = torch.min(
                 target_Q1, target_Q2) - self.alpha.detach() * log_prob_aug
             target_Q_aug = reward + (not_done * self.discount * target_V)
@@ -198,14 +197,17 @@ class DRQAgent(object):
             target_Q = (target_Q + target_Q_aug) / 2
 
         # get current Q estimates
-        current_Q1, current_Q2, rec_loss = self.critic(obs, action)
+        current_Q1, current_Q2, reward_predicted, next_obs_predicted = self.critic(obs, action)
         critic_loss = F.mse_loss(current_Q1, target_Q) + F.mse_loss(
             current_Q2, target_Q)
 
-        Q1_aug, Q2_aug, _ = self.critic(obs_aug, action)
+        Q1_aug, Q2_aug, reward_aug_predicted, next_obs_aug_predicted = self.critic(obs_aug, action)
+
+        rec_loss = F.mse_loss(reward, reward_predicted) + F.mse_loss(target_next_obs, next_obs_predicted) \
+                   + F.mse_loss(reward, reward_aug_predicted) + F.mse_loss(target_next_obs_aug, next_obs_aug_predicted)
 
         critic_loss += F.mse_loss(Q1_aug, target_Q) + F.mse_loss(
-            Q2_aug, target_Q) # + rec_loss
+            Q2_aug, target_Q) + rec_loss
 
         logger.log('train_critic/loss', critic_loss, step)
 
@@ -222,7 +224,7 @@ class DRQAgent(object):
         action = dist.rsample()
         log_prob = dist.log_prob(action).sum(-1, keepdim=True)
         # detach conv filters, so we don't update them with the actor loss
-        actor_Q1, actor_Q2, _ = self.critic(obs, action, detach_encoder=True)
+        actor_Q1, actor_Q2, _, _ = self.critic(obs, action, detach_encoder=True)
 
         actor_Q = torch.min(actor_Q1, actor_Q2)
 
