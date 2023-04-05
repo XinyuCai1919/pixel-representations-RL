@@ -757,10 +757,12 @@ class DistractingViT(nn.Module):
                 num_input_token = num_output_token
 
         self.norm = norm_layer(self.num_features)
-        self.distract_head = nn.Linear(self.num_features,
-                                       output_feature_dim) if output_feature_dim > 0 else nn.Identity()
-        self.task_head = nn.Linear(self.num_features,
-                                   output_feature_dim) if output_feature_dim > 0 else nn.Identity()
+        # self.distract_head = nn.Linear(self.num_features,
+        #                                output_feature_dim) if output_feature_dim > 0 else nn.Identity()
+        # self.task_head = nn.Linear(self.num_features,
+        #                            output_feature_dim) if output_feature_dim > 0 else nn.Identity()
+        self.head = nn.Linear(self.num_features,
+                              output_feature_dim) if output_feature_dim > 0 else nn.Identity()
 
         self.apply(self._init_weights)
 
@@ -843,14 +845,19 @@ class DistractingViT(nn.Module):
 
     def forward(self, x, detach=False, return_attn=False):
         x, group_token, attn_dicts = self.forward_features(x, return_attn=return_attn)
+        x = self.head(x)
 
-        task_embedding = self.task_head(x[:, 0])
-        distract_embedding = self.distract_head(x[:, 1])
         if detach:
-            task_embedding = task_embedding.detach()
-            distract_embedding = distract_embedding.detach()
+            x = x.detach()
+        return x
 
-        return task_embedding, distract_embedding
+        # task_embedding = self.task_head(x[:, 0])
+        # distract_embedding = self.distract_head(x[:, 1])
+        # if detach:
+        #     task_embedding = task_embedding.detach()
+        #     distract_embedding = distract_embedding.detach()
+        #
+        # return task_embedding, distract_embedding
 
 
 def dis_vit_small_patch6_h3d6(**kwargs):

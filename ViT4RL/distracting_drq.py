@@ -33,8 +33,8 @@ class Actor(nn.Module):
         self.apply(utils.weight_init)
 
     def forward(self, obs, detach_encoder=False):
-        task_embedding, distract_embedding = self.encoder(obs, detach=detach_encoder)
-        mu, log_std = self.trunk(task_embedding).chunk(2, dim=-1)
+        obs_emb = self.encoder(obs, detach=detach_encoder)
+        mu, log_std = self.trunk(obs_emb[:, 0]).chunk(2, dim=-1)
 
         # constrain log_std inside [log_std_min, log_std_max]
         log_std = torch.tanh(log_std)
@@ -82,19 +82,19 @@ class Critic(nn.Module):
 
     def forward(self, obs, action, detach_encoder=False):
         assert obs.size(0) == action.size(0)
-        task_embedding, distract_embedding = self.encoder(obs, detach=detach_encoder)
+        obs_emb = self.encoder(obs, detach=detach_encoder)
 
-        obs_action = torch.cat([task_embedding, action], dim=-1)
+        obs_action = torch.cat([obs_emb[:, 0], action], dim=-1)
         q1 = self.Q1(obs_action)
         q2 = self.Q2(obs_action)
 
-        reward = self.predict_reward(obs_action)
-        next_obs = self.predict_next_obs(obs_action)
+        # reward = self.predict_reward(obs_action)
+        # next_obs = self.predict_next_obs(obs_action)
 
         self.outputs['q1'] = q1
         self.outputs['q2'] = q2
 
-        return q1, q2, reward, next_obs
+        return q1, q2, obs_emb
 
     def log(self, logger, step):
         # self.encoder.log(logger, step)
@@ -141,9 +141,12 @@ class DRQAgent(object):
         # set target entropy to -|A|
         self.target_entropy = -action_shape[0]
 
+        self.cross_entropy = nn.CrossEntropyLoss()
+        self.logit_scale = nn.Parameter(torch.ones([]) * np.log(1 / 0.07))
+
         # optimizers
         self.actor_optimizer = torch.optim.AdamW(self.actor.parameters(), lr=lr)
-        self.critic_optimizer = torch.optim.AdamW(self.critic.parameters(), lr=lr)
+        self.critic_optimizer = torch.optim.AdamW(list(self.critic.parameters()) + [self.logit_scale], lr=lr)
 
         self.log_alpha_optimizer = torch.optim.AdamW([self.log_alpha], lr=lr)
 
@@ -179,7 +182,7 @@ class DRQAgent(object):
             dist = self.actor(next_obs)
             next_action = dist.rsample()
             log_prob = dist.log_prob(next_action).sum(-1, keepdim=True)
-            target_Q1, target_Q2, _, target_next_obs = self.critic_target(next_obs, next_action)
+            target_Q1, target_Q2, _ = self.critic_target(next_obs, next_action)
             target_V = torch.min(target_Q1,
                                  target_Q2) - self.alpha.detach() * log_prob
             target_Q = reward + (not_done * self.discount * target_V)
@@ -188,7 +191,7 @@ class DRQAgent(object):
             next_action_aug = dist_aug.rsample()
             log_prob_aug = dist_aug.log_prob(next_action_aug).sum(-1,
                                                                   keepdim=True)
-            target_Q1, target_Q2, _, target_next_obs_aug = self.critic_target(next_obs_aug,
+            target_Q1, target_Q2, _ = self.critic_target(next_obs_aug,
                                                                               next_action_aug)
             target_V = torch.min(
                 target_Q1, target_Q2) - self.alpha.detach() * log_prob_aug
@@ -197,19 +200,34 @@ class DRQAgent(object):
             target_Q = (target_Q + target_Q_aug) / 2
 
         # get current Q estimates
-        current_Q1, current_Q2, reward_predicted, next_obs_predicted = self.critic(obs, action)
+        current_Q1, current_Q2, obs_emb = self.critic(obs, action)
         critic_loss = F.mse_loss(current_Q1, target_Q) + F.mse_loss(
             current_Q2, target_Q)
 
-        Q1_aug, Q2_aug, reward_aug_predicted, next_obs_aug_predicted = self.critic(obs_aug, action)
+        Q1_aug, Q2_aug, obs_aug_emb = self.critic(obs_aug, action)
 
-        rec_loss = F.mse_loss(reward, reward_predicted) + F.mse_loss(target_next_obs, next_obs_predicted) \
-                   + F.mse_loss(reward, reward_aug_predicted) + F.mse_loss(target_next_obs_aug, next_obs_aug_predicted)
+        # rec_loss = F.mse_loss(reward, reward_predicted) + F.mse_loss(target_next_obs, next_obs_predicted) \
+        #            + F.mse_loss(reward, reward_aug_predicted) + F.mse_loss(target_next_obs_aug, next_obs_aug_predicted)
+
+        # [B, 2, C]
+        batch_size = obs_emb.shape[0]
+        # get label globally [B, 2]
+        labels = torch.arange(2, dtype=torch.long, device=self.device).expand(512, -1)
+
+        # [B, 2, 2]
+        obs_emb = F.normalize(obs_emb, dim=-1)
+        obs_aug_emb = F.normalize(obs_aug_emb, dim=-1)
+        logits = torch.einsum('ijk,ilk->ijl', obs_emb, obs_aug_emb)
+
+        logit_scale = torch.clamp(self.logit_scale.exp(), max=100)
+        contrastive_loss = self.cross_entropy(logits * logit_scale, labels)
+        contrastive_loss += self.cross_entropy(logits.permute(0, 2, 1) * logit_scale, labels)
 
         critic_loss += F.mse_loss(Q1_aug, target_Q) + F.mse_loss(
-            Q2_aug, target_Q) + rec_loss
+            Q2_aug, target_Q) + contrastive_loss
 
         logger.log('train_critic/loss', critic_loss, step)
+
 
         # Optimize the critic
         self.critic_optimizer.zero_grad()
@@ -224,7 +242,7 @@ class DRQAgent(object):
         action = dist.rsample()
         log_prob = dist.log_prob(action).sum(-1, keepdim=True)
         # detach conv filters, so we don't update them with the actor loss
-        actor_Q1, actor_Q2, _, _ = self.critic(obs, action, detach_encoder=True)
+        actor_Q1, actor_Q2, _ = self.critic(obs, action, detach_encoder=True)
 
         actor_Q = torch.min(actor_Q1, actor_Q2)
 
