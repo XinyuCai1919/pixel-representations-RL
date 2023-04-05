@@ -227,7 +227,8 @@ class DRQAgent(object):
             Q2_aug, target_Q) + contrastive_loss
 
         logger.log('train_critic/loss', critic_loss, step)
-
+        logger.log('train_critic/contrastive_loss', contrastive_loss, step)
+        logger.log('train_critic/temp', logit_scale, step)
 
         # Optimize the critic
         self.critic_optimizer.zero_grad()
