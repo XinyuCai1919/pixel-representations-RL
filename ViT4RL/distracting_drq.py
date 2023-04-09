@@ -88,13 +88,13 @@ class Critic(nn.Module):
         q1 = self.Q1(obs_action)
         q2 = self.Q2(obs_action)
 
-        # reward = self.predict_reward(obs_action)
-        # next_obs = self.predict_next_obs(obs_action)
+        reward_predicted = self.predict_reward(obs_action)
+        next_obs_predicted = self.predict_next_obs(obs_action)
 
         self.outputs['q1'] = q1
         self.outputs['q2'] = q2
 
-        return q1, q2, obs_emb
+        return q1, q2, obs_emb, reward_predicted, next_obs_predicted
 
     def log(self, logger, step):
         # self.encoder.log(logger, step)
@@ -182,7 +182,7 @@ class DRQAgent(object):
             dist = self.actor(next_obs)
             next_action = dist.rsample()
             log_prob = dist.log_prob(next_action).sum(-1, keepdim=True)
-            target_Q1, target_Q2, _ = self.critic_target(next_obs, next_action)
+            target_Q1, target_Q2, _, _, _ = self.critic_target(next_obs, next_action)
             target_V = torch.min(target_Q1,
                                  target_Q2) - self.alpha.detach() * log_prob
             target_Q = reward + (not_done * self.discount * target_V)
@@ -191,8 +191,8 @@ class DRQAgent(object):
             next_action_aug = dist_aug.rsample()
             log_prob_aug = dist_aug.log_prob(next_action_aug).sum(-1,
                                                                   keepdim=True)
-            target_Q1, target_Q2, _ = self.critic_target(next_obs_aug,
-                                                                              next_action_aug)
+            target_Q1, target_Q2, _, _, _ = self.critic_target(next_obs_aug,
+                                                         next_action_aug)
             target_V = torch.min(
                 target_Q1, target_Q2) - self.alpha.detach() * log_prob_aug
             target_Q_aug = reward + (not_done * self.discount * target_V)
@@ -200,17 +200,18 @@ class DRQAgent(object):
             target_Q = (target_Q + target_Q_aug) / 2
 
         # get current Q estimates
-        current_Q1, current_Q2, obs_emb = self.critic(obs, action)
+        current_Q1, current_Q2, obs_emb, reward_predicted, _ = self.critic(obs, action)
         critic_loss = F.mse_loss(current_Q1, target_Q) + F.mse_loss(
             current_Q2, target_Q)
 
-        Q1_aug, Q2_aug, obs_aug_emb = self.critic(obs_aug, action)
+        Q1_aug, Q2_aug, obs_aug_emb, reward_aug_predicted, _ = self.critic(obs_aug, action)
 
-        # rec_loss = F.mse_loss(reward, reward_predicted) + F.mse_loss(target_next_obs, next_obs_predicted) \
-        #            + F.mse_loss(reward, reward_aug_predicted) + F.mse_loss(target_next_obs_aug, next_obs_aug_predicted)
+        reward_loss = F.mse_loss(reward, reward_predicted) + F.mse_loss(reward, reward_aug_predicted)
+        # transition_loss = F.mse_loss(target_next_obs, next_obs_predicted) \
+        #                   + F.mse_loss(target_next_obs_aug, next_obs_aug_predicted)
 
         # [B, 2, C]
-        batch_size = obs_emb.shape[0]
+        # batch_size = obs_emb.shape[0]
         # get label globally [B, 2]
         labels = torch.arange(2, dtype=torch.long, device=self.device).expand(512, -1)
 
@@ -222,12 +223,14 @@ class DRQAgent(object):
         logit_scale = torch.clamp(self.logit_scale.exp(), max=100)
         contrastive_loss = self.cross_entropy(logits * logit_scale, labels)
         contrastive_loss += self.cross_entropy(logits.permute(0, 2, 1) * logit_scale, labels)
+        contrastive_loss *= 100
 
         critic_loss += F.mse_loss(Q1_aug, target_Q) + F.mse_loss(
-            Q2_aug, target_Q) + contrastive_loss
+            Q2_aug, target_Q) + contrastive_loss + reward_loss
 
         logger.log('train_critic/loss', critic_loss, step)
         logger.log('train_critic/contrastive_loss', contrastive_loss, step)
+        logger.log('train_critic/reward_loss', reward_loss, step)
         logger.log('train_critic/temp', logit_scale, step)
 
         # Optimize the critic
@@ -243,7 +246,7 @@ class DRQAgent(object):
         action = dist.rsample()
         log_prob = dist.log_prob(action).sum(-1, keepdim=True)
         # detach conv filters, so we don't update them with the actor loss
-        actor_Q1, actor_Q2, _ = self.critic(obs, action, detach_encoder=True)
+        actor_Q1, actor_Q2, _, _, _ = self.critic(obs, action, detach_encoder=True)
 
         actor_Q = torch.min(actor_Q1, actor_Q2)
 
