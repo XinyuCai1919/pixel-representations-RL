@@ -25,12 +25,13 @@ num_seed_steps: 1000
 replay_buffer_capacity: 100000
 seed: 1
 # eval
-eval_frequency: 5000
-num_eval_episodes: 10
+eval_frequency: 10000
+num_eval_episodes: 20
 # misc
 log_frequency_step: 10000
 log_save_tb: true
 save_video: True
+save_model: True
 device: cuda
 # observation
 image_size: 84
