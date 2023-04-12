@@ -25,7 +25,7 @@ num_seed_steps: 1000
 replay_buffer_capacity: 100000
 seed: 1
 # eval
-eval_frequency: 10000
+eval_frequency: 20000
 num_eval_episodes: 20
 # misc
 log_frequency_step: 10000
