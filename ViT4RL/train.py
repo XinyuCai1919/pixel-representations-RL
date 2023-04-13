@@ -70,7 +70,7 @@ def make_env(cfg):
 
 class Workspace(object):
     def __init__(self, cfg):
-        self.work_dir = os.getcwd()
+        self.work_dir = os.getcwd() + 'vit'
         print(f'workspace: {self.work_dir}')
 
         self.cfg = cfg
@@ -190,7 +190,7 @@ class Workspace(object):
             self.step += 1
 
 
-@hydra.main(config_path='config_distract.yaml', strict=True)
+@hydra.main(config_path='config.yaml', strict=True)
 def main(cfg):
     from train import Workspace as W
     workspace = W(cfg)
