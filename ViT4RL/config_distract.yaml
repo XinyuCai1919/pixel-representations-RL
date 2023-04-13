@@ -19,14 +19,14 @@ resource_files: '/opt/project/distractors/driving/*.mp4'
 # See Dreamer TF2's implementation: https://github.com/danijar/dreamer/blob/02f0210f5991c7710826ca7881f19c64a012290c/dreamer.py#L340
 action_repeat: 8
 # train
-num_train_steps: 500000
+num_train_steps: 1500000
 num_train_iters: 1
 num_seed_steps: 1000
 replay_buffer_capacity: 100000
 seed: 1
 # eval
-eval_frequency: 20000
-num_eval_episodes: 20
+eval_frequency: 40000
+num_eval_episodes: 10
 # misc
 log_frequency_step: 10000
 log_save_tb: true
