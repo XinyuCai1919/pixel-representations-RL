@@ -61,8 +61,8 @@ class ReplayBuffer(object):
         not_dones_no_max = torch.as_tensor(self.not_dones_no_max[idxs],
                                            device=self.device)
 
-        obses = self.aug_trans(obses)
-        next_obses = self.aug_trans(next_obses)
+        # obses = self.aug_trans(obses)
+        # next_obses = self.aug_trans(next_obses)
 
         obses_aug = self.aug_trans(obses_aug)
         next_obses_aug = self.aug_trans(next_obses_aug)
