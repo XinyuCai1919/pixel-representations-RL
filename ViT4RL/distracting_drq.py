@@ -182,7 +182,7 @@ class DRQAgent(object):
             dist = self.actor(next_obs)
             next_action = dist.rsample()
             log_prob = dist.log_prob(next_action).sum(-1, keepdim=True)
-            target_Q1, target_Q2, _, _, _ = self.critic_target(next_obs, next_action)
+            target_Q1, target_Q2, next_obs_emb, _, _ = self.critic_target(next_obs, next_action)
             target_V = torch.min(target_Q1,
                                  target_Q2) - self.alpha.detach() * log_prob
             target_Q = reward + (not_done * self.discount * target_V)
@@ -217,8 +217,8 @@ class DRQAgent(object):
 
         # [B, 2, 2]
         obs_emb = F.normalize(obs_emb, dim=-1)
-        obs_aug_emb = F.normalize(obs_aug_emb, dim=-1)
-        logits = torch.einsum('ijk,ilk->ijl', obs_emb, obs_aug_emb)
+        next_obs_emb = F.normalize(next_obs_emb, dim=-1)
+        logits = torch.einsum('ijk,ilk->ijl', obs_emb, next_obs_emb)
 
         logit_scale = torch.clamp(self.logit_scale.exp(), max=100)
         contrastive_loss = self.cross_entropy(logits * logit_scale, labels)
@@ -226,7 +226,7 @@ class DRQAgent(object):
         contrastive_loss *= 100
 
         critic_loss += F.mse_loss(Q1_aug, target_Q) + F.mse_loss(
-            Q2_aug, target_Q) + contrastive_loss + reward_loss
+            Q2_aug, target_Q) + contrastive_loss # + reward_loss
 
         logger.log('train_critic/loss', critic_loss, step)
         logger.log('train_critic/contrastive_loss', contrastive_loss, step)
