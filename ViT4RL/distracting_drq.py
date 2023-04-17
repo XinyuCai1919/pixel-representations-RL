@@ -226,7 +226,7 @@ class DRQAgent(object):
         contrastive_loss *= 1000
 
         critic_loss += F.mse_loss(Q1_aug, target_Q) + F.mse_loss(
-            Q2_aug, target_Q) + contrastive_loss # + reward_loss
+            Q2_aug, target_Q) + contrastive_loss + reward_loss
 
         logger.log('train_critic/loss', critic_loss, step)
         logger.log('train_critic/contrastive_loss', contrastive_loss, step)
