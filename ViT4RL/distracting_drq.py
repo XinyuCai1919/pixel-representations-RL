@@ -223,10 +223,10 @@ class DRQAgent(object):
         logit_scale = torch.clamp(self.logit_scale.exp(), max=100)
         contrastive_loss = self.cross_entropy(logits * logit_scale, labels)
         contrastive_loss += self.cross_entropy(logits.permute(0, 2, 1) * logit_scale, labels)
-        contrastive_loss *= 100
+        contrastive_loss *= 1000
 
         critic_loss += F.mse_loss(Q1_aug, target_Q) + F.mse_loss(
-            Q2_aug, target_Q) + contrastive_loss # + reward_loss
+            Q2_aug, target_Q) + contrastive_loss + reward_loss
 
         logger.log('train_critic/loss', critic_loss, step)
         logger.log('train_critic/contrastive_loss', contrastive_loss, step)
