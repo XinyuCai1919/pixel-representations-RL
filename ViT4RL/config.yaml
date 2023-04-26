@@ -40,7 +40,7 @@ frame_stack: 3
 # global params
 lr: 1e-4
 # IMPORTANT: please use a batch size of 512 to reproduce the results in the paper. Hovewer, with a smaller batch size it still works well.
-batch_size: 512
+batch_size: 256
 encoder_conf: 0.0025
 load_pretrain: True
 scale: 0.0425
