@@ -761,7 +761,7 @@ class DistractingViT(nn.Module):
         #                                output_feature_dim) if output_feature_dim > 0 else nn.Identity()
         # self.task_head = nn.Linear(self.num_features,
         #                            output_feature_dim) if output_feature_dim > 0 else nn.Identity()
-        self.head = nn.Linear(self.num_features,
+        self.head = nn.Linear(self.num_features * 3,
                               output_feature_dim) if output_feature_dim > 0 else nn.Identity()
 
         self.apply(self._init_weights)
@@ -844,7 +844,19 @@ class DistractingViT(nn.Module):
         return x, group_token, attn_dict_list
 
     def forward(self, x, detach=False, return_attn=False):
+        # x [b, 9, 84, 84]
+        batch_size = x.shape[0]
+
+        # x [b, 3, 3, 84, 84]
+        x = torch.reshape(x, [batch_size, 3, 3, 84, 84])
+
+        # x [b*3, 3, 84, 84]
+        x = torch.reshape(x, [batch_size * 3, 3, 84, 84])
         x, group_token, attn_dicts = self.forward_features(x, return_attn=return_attn)
+
+        x = torch.reshape(x, [batch_size, 3, 2, 64])
+        x = torch.transpose(x, 1, 2)
+        x = torch.reshape(x, [batch_size, 2, 192])
         x = self.head(x)
 
         if detach:
@@ -869,7 +881,7 @@ def dis_vit_small_patch6_h3d6(**kwargs):
 
 def dis_vit_small_patch12_h3d6(**kwargs):
     model = DistractingViT(
-        patch_size=12, embed_dim=192, depths=[2, 2, 2], num_heads=[3, 3, 3],
+        patch_size=12, embed_dim=64, depths=[2, 2, 2], num_heads=[4, 4, 4],
         mlp_ratio=4, norm_layer=partial(nn.LayerNorm, eps=1e-6), **kwargs)
     return model
 

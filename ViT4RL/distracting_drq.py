@@ -13,7 +13,7 @@ import kornia.augmentation as aug
 # timm_encoder = Timm_Encoder(obs_shape=[9, 84, 84], feature_dim=50)
 cutout = aug.RandomErasing(scale=(0.05, 0.05), ratio=(1.0, 1.0), p=1)
 # mae = mae_vit_small_patch6_h3d6_dec192d3b(img_size=84, in_chans=9, latent_feature_dim=50)
-vit = dis_vit_small_patch12_h3d6(img_size=84, in_chans=9, output_feature_dim=50)
+vit = dis_vit_small_patch12_h3d6(img_size=84, in_chans=3, output_feature_dim=50)
 
 
 class Actor(nn.Module):
