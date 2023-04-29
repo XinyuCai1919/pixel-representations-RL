@@ -75,6 +75,10 @@ def hop(time_limit=_DEFAULT_TIME_LIMIT, random=None, environment_kwargs=None):
 class Physics(mujoco.Physics):
   """Physics simulation with additional features for the Hopper domain."""
 
+  def torso_upright(self):
+    """Returns projection from z-axes of torso to the z-axes of world."""
+    return self.named.data.xmat['torso', 'zz']
+
   def height(self):
     """Returns height of torso with respect to foot."""
     return (self.named.data.xipos['torso', 'z'] -
@@ -131,8 +135,10 @@ class Hopper(base.Task):
                                   sigmoid='linear')
       return standing * hopping
     else:
+      upright = (1 + physics.torso_upright()) / 2
+      stand_reward = (3 * standing + upright) / 4
       small_control = rewards.tolerance(physics.control(),
                                         margin=1, value_at_margin=0,
                                         sigmoid='quadratic').mean()
       small_control = (small_control + 4) / 5
-      return standing * small_control
+      return stand_reward * small_control
