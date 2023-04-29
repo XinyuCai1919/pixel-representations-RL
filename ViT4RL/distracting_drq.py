@@ -5,7 +5,7 @@ import torch.nn.functional as F
 import copy
 import math
 # from vit import Timm_Encoder_toy as Timm_Encoder
-from distracting_vit import dis_vit_small_patch6_h3d6, dis_vit_small_patch12_h3d6
+from distracting_vit import dis_vit_small_patch6_h3d6, dis_vit_small_patch12_h4d6, dis_vit_small_patch6_h4d6
 import utils
 import hydra
 import kornia.augmentation as aug
@@ -13,7 +13,7 @@ import kornia.augmentation as aug
 # timm_encoder = Timm_Encoder(obs_shape=[9, 84, 84], feature_dim=50)
 cutout = aug.RandomErasing(scale=(0.05, 0.05), ratio=(1.0, 1.0), p=1)
 # mae = mae_vit_small_patch6_h3d6_dec192d3b(img_size=84, in_chans=9, latent_feature_dim=50)
-vit = dis_vit_small_patch12_h3d6(img_size=84, in_chans=3, output_feature_dim=50)
+vit = dis_vit_small_patch6_h4d6(img_size=84, in_chans=3, output_feature_dim=50)
 
 
 class Actor(nn.Module):
@@ -211,9 +211,10 @@ class DRQAgent(object):
         #                   + F.mse_loss(target_next_obs_aug, next_obs_aug_predicted)
 
         # [B, 2, C]
-        # batch_size = obs_emb.shape[0]
+        batch_size = obs_emb.shape[0]
         # get label globally [B, 2]
-        labels = torch.arange(2, dtype=torch.long, device=self.device).expand(512, -1)
+
+        labels = torch.arange(2, dtype=torch.long, device=self.device).expand(batch_size, -1)
 
         # [B, 2, 2]
         obs_emb = F.normalize(obs_emb, dim=-1)
