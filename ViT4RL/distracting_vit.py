@@ -879,12 +879,18 @@ def dis_vit_small_patch6_h3d6(**kwargs):
     return model
 
 
-def dis_vit_small_patch12_h3d6(**kwargs):
+def dis_vit_small_patch12_h4d6(**kwargs):
     model = DistractingViT(
         patch_size=12, embed_dim=64, depths=[2, 2, 2], num_heads=[4, 4, 4],
         mlp_ratio=4, norm_layer=partial(nn.LayerNorm, eps=1e-6), **kwargs)
     return model
 
+def dis_vit_small_patch6_h4d6(**kwargs):
+    model = DistractingViT(
+        patch_size=6, embed_dim=64, depths=[2, 2, 2], num_heads=[4, 4, 4],
+        mlp_ratio=4, norm_layer=partial(nn.LayerNorm, eps=1e-6), **kwargs)
+    return model
+
 
 if __name__ == '__main__':
-    dis_vit_small_patch12_h3d6(img_size=84, in_chans=9, output_feature_dim=50)
+    dis_vit_small_patch12_h4d6(img_size=84, in_chans=9, output_feature_dim=50)
