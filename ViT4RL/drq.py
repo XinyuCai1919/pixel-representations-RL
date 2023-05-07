@@ -2,16 +2,13 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import copy
-import math
-from vit import Timm_Encoder_toy as Timm_Encoder
 from cnn import CNNEncoder
 import utils
 import hydra
-import kornia.augmentation as aug
-timm_encoder = Timm_Encoder(obs_shape=[9,84,84], feature_dim=50)
-cutout = aug.RandomErasing(scale=(0.05,0.05),ratio=(1.0,1.0),p=1)
+
 cnn_encoder = CNNEncoder(obs_shape=[9,84,84], feature_dim=50, num_layers=4, num_filters=32, output_logits=True)
+
+
 class Actor(nn.Module):
     """torch.distributions implementation of an diagonal Gaussian policy."""
     def __init__(self, encoder_cfg, action_shape, hidden_dim, hidden_depth,
