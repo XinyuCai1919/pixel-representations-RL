@@ -70,7 +70,7 @@ def make_env(cfg):
 
 class Workspace(object):
     def __init__(self, cfg):
-        self.work_dir = os.getcwd()
+        self.work_dir = os.getcwd() + 'drq_cnn'
         print(f'workspace: {self.work_dir}')
 
         self.cfg = cfg
