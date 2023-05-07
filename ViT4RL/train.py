@@ -135,7 +135,7 @@ class Workspace(object):
         episode, episode_reward, episode_step, done = 0, 0, 1, True
         start_time = time.time()
 
-        while self.step < self.cfg.num_train_steps:
+        while self.step < self.cfg.num_train_steps // self.cfg.action_repeat:
             if done:
                 if self.step > 0:
                     self.logger.log('train/duration',
@@ -145,7 +145,9 @@ class Workspace(object):
                         self.step, save=(self.step > self.cfg.num_seed_steps))
 
                 # evaluate agent periodically
-                if self.step % self.cfg.eval_frequency == 0:
+                if self.step % (self.cfg.eval_frequency // self.cfg.action_repeat) == 0:
+                    if self.cfg.save_model:  # and args.agent == 'rad_sac':
+                        self.agent.save_model(self.work_dir, self.step * self.cfg.action_repeat)
                     self.logger.log('eval/episode', episode, self.step)
                     self.evaluate()
 
