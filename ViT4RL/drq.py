@@ -264,8 +264,8 @@ class DRQAgent(object):
             utils.soft_update_params(self.critic, self.critic_target,
                                      self.critic_tau)
     def save_model(self,path,step):
-        torch.save(self.critic.state_dict(), path+"/critic_{}-th_model.pth".format(step))
+        # torch.save(self.critic.state_dict(), path+"/critic_{}-th_model.pth".format(step))
         torch.save(self.actor.state_dict(), path+"/actor_{}-th_model.pth".format(step))
-        torch.save(self.critic_target.state_dict(), path+"/critic_target_{}-th_model.pth".format(step))
+        # torch.save(self.critic_target.state_dict(), path+"/critic_target_{}-th_model.pth".format(step))
         
         

@@ -30,6 +30,7 @@ num_eval_episodes: 10
 # misc
 log_frequency_step: 10000
 log_save_tb: true
+save_model: True
 save_video: True
 device: cuda
 # observation
