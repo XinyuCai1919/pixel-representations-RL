@@ -26,8 +26,8 @@ from agent.deepmdp_agent import DeepMDPAgent
 def parse_args():
     parser = argparse.ArgumentParser()
     # environment
-    parser.add_argument('--domain_name', default='cheetah')
-    parser.add_argument('--task_name', default='run')
+    parser.add_argument('--domain_name', default='cartpole')
+    parser.add_argument('--task_name', default='swingup')
     parser.add_argument('--image_size', default=84, type=int)
     parser.add_argument('--action_repeat', default=2, type=int)
     parser.add_argument('--frame_stack', default=3, type=int)
@@ -302,19 +302,20 @@ def main():
         )
         env.seed(args.seed)
 
-        eval_env = dmc2gym.make(
-            domain_name=args.domain_name,
-            task_name=args.task_name,
-            resource_files=args.eval_resource_files,
-            img_source=args.img_source,
-            total_frames=args.total_frames,
-            seed=args.seed,
-            visualize_reward=False,
-            from_pixels=(args.encoder_type == 'pixel'),
-            height=args.image_size,
-            width=args.image_size,
-            frame_skip=args.action_repeat
-        )
+        eval_env = env
+        # eval_env = dmc2gym.make(
+        #     domain_name=args.domain_name,
+        #     task_name=args.task_name,
+        #     resource_files=args.eval_resource_files,
+        #     img_source=args.img_source,
+        #     total_frames=args.total_frames,
+        #     seed=args.seed,
+        #     visualize_reward=False,
+        #     from_pixels=(args.encoder_type == 'pixel'),
+        #     height=args.image_size,
+        #     width=args.image_size,
+        #     frame_skip=args.action_repeat
+        # )
 
     # stack several consecutive frames together
     if args.encoder_type.startswith('pixel'):
