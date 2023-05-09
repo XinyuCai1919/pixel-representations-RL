@@ -4,3 +4,9 @@ __pycache__/
 **/tmp/**
 
 /.idea/
+
+*.mp4
+
+*.pth
+
+ViT4RL/runs/
