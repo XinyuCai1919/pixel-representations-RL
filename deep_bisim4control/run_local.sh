@@ -16,5 +16,3 @@ MUJOCO_GL="osmesa"  CUDA_VISIBLE_DEVICES=${CUDA} python train.py \
     --save_model \
     --work_dir ${SAVEDIR}/${DOMAIN}_${TASK}_${SEED} \
     --seed ${SEED} &
-
-. run_local.sh cartpole swingup 23 0
