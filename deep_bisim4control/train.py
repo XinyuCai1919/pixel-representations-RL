@@ -290,7 +290,7 @@ def main():
         env = dmc2gym.make(
             domain_name=args.domain_name,
             task_name=args.task_name,
-            resource_files='/opt/project/distractors/driving/*.mp4',
+            resource_files='/home/xycai/pixel-representations-RL/distractors/driving/*.mp4',
             img_source=args.img_source,
             total_frames=args.total_frames,
             seed=args.seed,
