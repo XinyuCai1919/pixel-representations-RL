@@ -83,6 +83,9 @@ class DMCWrapper(core.Env):
             )
         else:
             from dm_control import suite as dm_suite
+            if domain_name =='ball' and task_name == 'in_cup_catch':
+                domain_name = 'ball_in_cup'
+                task_name = 'catch'
             self._env = dm_suite.load(
                 domain_name=domain_name,
                 task_name=task_name,
