@@ -1,0 +1,2 @@
+CUDA_VISIBLE_DEVICES=$1 python dreamer.py --configs defaults dmc --task dmcbg_ball_in_cup_catch --action_repeat 4 --seed $2 &
+CUDA_VISIBLE_DEVICES=$1 python dreamer.py --configs defaults dmc --task dmcbg_ball_in_cup_catch --action_repeat 4 --seed $3 &

@@ -1,0 +1,2 @@
+CUDA_VISIBLE_DEVICES=$1 python dreamer.py --configs defaults dmc --task dmcbg_cartpole --action_repeat 2 --seed $2 &
+CUDA_VISIBLE_DEVICES=$1 python dreamer.py --configs defaults dmc --task dmcbg_cartpole --action_repeat 2 --seed $3 &
