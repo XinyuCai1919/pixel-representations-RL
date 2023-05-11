@@ -1,1 +1,1 @@
-CUDA_VISIBLE_DEVICES=$2 python dreamer.py --configs defaults dmc --task $1 --seed $3
+CUDA_VISIBLE_DEVICES=$2 python dreamer.py --configs defaults dmc --task $1 --seed $3 &
