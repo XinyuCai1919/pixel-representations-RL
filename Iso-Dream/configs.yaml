@@ -1,6 +1,6 @@
 defaults:
 
-  logdir: null
+  logdir: 'log'
   traindir: null
   evaldir: null
   offline_traindir: ''
@@ -73,9 +73,9 @@ defaults:
   bg_decoder_kernels: [5, 5, 6, 6]
   decoder_thin: True
   value_head: 'normal'
-  kl_scale: '1.0'
-  kl_balance: '0.8'
-  kl_free: '1.0'
+  kl_scale: 1.0
+  kl_balance: 0.8
+  kl_free: 1.0
   kl_forward: False
   pred_discount: False
   discount_scale: 1.0

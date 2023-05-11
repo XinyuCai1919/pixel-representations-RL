@@ -274,6 +274,7 @@ def process_episode(config, logger, mode, train_eps, eval_eps, episode):
 
 def main(config):
   logdir = pathlib.Path(config.logdir).expanduser()
+  logdir = logdir / (config.task + '_' + str(config.seed))
   config.traindir = config.traindir or logdir / 'train_eps'
   config.evaldir = config.evaldir or logdir / 'eval_eps'
   config.steps //= config.action_repeat
