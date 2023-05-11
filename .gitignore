@@ -10,3 +10,7 @@ __pycache__/
 *.pth
 
 ViT4RL/runs/
+
+Iso-Dream/log
+
+deep_bisim4control/runs/
