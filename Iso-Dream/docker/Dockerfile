@@ -42,7 +42,12 @@ RUN git clone https://github.com/XinyuCai1919/pixel-representations-RL.git && \
     conda activate py38 && \
     cd  ./pixel-representations-RL && \
     pip install -r requirements.txt && \
-    pip install dm_control && \
+    cp -r ~/.mujoco/mujoco200 ~/.mujoco/mujoco200_linux && \
+    cd  ./Iso-Dream/envs/dm_control && \
+    pip install -e . && \
+    cd ../dmc2gym && \
+    pip install -e . && \
+    pip install xmltodict && \
     pip install protobuf==3.20 && \
     pip install torch==1.10.1+cu111 torchvision==0.11.2+cu111 torchaudio==0.10.1 -f https://download.pytorch.org/whl/cu111/torch_stable.html && \
     pip install hydra-core==0.11 && \
