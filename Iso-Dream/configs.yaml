@@ -24,7 +24,7 @@ defaults:
   action_step: 25
   free_step: 25
   init_frame: 10
-  eval_mode: 'video_easy'
+  video_path: '/opt/project/distractors/driving/*.mp4'
   use_free: False
   rollout_policy: False
   autoencoder: False

@@ -165,7 +165,7 @@ class DeepMindControl:
 
 class DeepMindControlGen:
 
-  def __init__(self, name, seed, action_repeat=1, size=(64, 64), eval_mode=None, camera=None):
+  def __init__(self, name, seed, action_repeat=1, size=(64, 64), video_path=None, camera=None):
     domain, task = name.split('_', 1)
     if domain == 'cup':  # Only domain with multiple words.
       domain = 'ball_in_cup'
@@ -177,7 +177,7 @@ class DeepMindControlGen:
       # episode_length=args.max_episode_length,
       action_repeat=action_repeat,
       image_size=size[0],
-      mode=eval_mode,  # 'train',
+      path=video_path,
       frame_stack=1
     )
     self._action_repeat = action_repeat

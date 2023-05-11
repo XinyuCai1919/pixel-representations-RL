@@ -186,7 +186,7 @@ def make_env(config, logger, mode, train_eps, eval_eps):
     env = wrappers.DeepMindControl(task, config.action_repeat, config.size)
     env = wrappers.NormalizeActions(env)
   elif suite == 'dmcbg':
-    env = wrappers.DeepMindControlGen(task, config.seed, config.action_repeat, config.size, config.eval_mode)
+    env = wrappers.DeepMindControlGen(task, config.seed, config.action_repeat, config.size, config.video_path)
     env = wrappers.NormalizeActions(env)    
   elif suite == 'atari':
     env = wrappers.Atari(
@@ -203,17 +203,18 @@ def make_env(config, logger, mode, train_eps, eval_eps):
         config.action_repeat)
     env = wrappers.OneHotAction(env)
   elif suite == 'carla':
-    env = CarlaEnv(
-            render_display=False,  # for local debugging only
-            display_text=False,  # for local debugging only
-            changing_weather_speed=0.1,  # [0, +inf)
-            rl_image_size=config.image_size,
-            max_episode_steps=1000,
-            frame_skip=config.action_repeat,
-            is_other_cars=True,
-            port=2000
-        )
-    env_eval = env
+    # env = CarlaEnv(
+    #         render_display=False,  # for local debugging only
+    #         display_text=False,  # for local debugging only
+    #         changing_weather_speed=0.1,  # [0, +inf)
+    #         rl_image_size=config.image_size,
+    #         max_episode_steps=1000,
+    #         frame_skip=config.action_repeat,
+    #         is_other_cars=True,
+    #         port=2000
+    #     )
+    # env_eval = env
+    pass
   else:
     raise NotImplementedError(suite)
   if suite == 'carla':
@@ -235,10 +236,10 @@ def make_env(config, logger, mode, train_eps, eval_eps):
   else:
     env = wrappers.TimeLimit(env, config.time_limit)
     env = wrappers.SelectAction(env, key='action')
-    if (mode == 'train') or (mode == 'eval'):
-      callbacks = [functools.partial(
-          process_episode, config, logger, mode, train_eps, eval_eps)]
-      env = wrappers.CollectDataset(env, callbacks)
+    # if (mode == 'train') or (mode == 'eval'):
+    callbacks = [functools.partial(
+        process_episode, config, logger, mode, train_eps, eval_eps)]
+    env = wrappers.CollectDataset(env, callbacks)
     env = wrappers.RewardObs(env)
     return env
 
