@@ -105,7 +105,7 @@ class Workspace(object):
         np.save(self.work_dir + f"outdoors_mean_{outdoors_result.mean()}_std_{outdoors_result.std()}", outdoors_result)
 
 
-@hydra.main(config_path='config_distract.yaml', strict=True)
+@hydra.main(config_path='config.yaml', strict=True)
 def main(cfg):
     workspace = Workspace(cfg)
     workspace.run()
