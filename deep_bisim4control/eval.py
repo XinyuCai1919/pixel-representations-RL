@@ -31,7 +31,7 @@ def parse_args():
     parser.add_argument('--image_size', default=84, type=int)
     parser.add_argument('--action_repeat', default=2, type=int)
     parser.add_argument('--frame_stack', default=3, type=int)
-    parser.add_argument('--resource_files', type=str)
+    parser.add_argument('--resource_files', default='/home/xycai/pixel-representations-RL/distractors/driving/*.mp4', type=str)
     parser.add_argument('--eval_resource_files', type=str)
     parser.add_argument('--img_source', default='video', type=str, choices=['color', 'noise', 'images', 'video', 'none'])
     parser.add_argument('--total_frames', default=1000, type=int)
