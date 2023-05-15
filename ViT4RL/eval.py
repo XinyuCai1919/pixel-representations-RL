@@ -93,7 +93,7 @@ class Workspace(object):
             self.evaluate(indoors_env)
             indoors_result = np.array(self.episode_rewards)
             print(f"indoors_mean_{indoors_result.mean()}_std_{indoors_result.std()}")
-            np.save(self.work_dir + f"indoors_mean_{indoors_result.mean()}_std_{indoors_result.std()}", indoors_result)
+        np.save(self.work_dir + f"indoors_mean_{indoors_result.mean()}_std_{indoors_result.std()}", indoors_result)
 
         self.episode_rewards = []
         for i in range(1, 11):
@@ -102,7 +102,7 @@ class Workspace(object):
             self.evaluate(outdoors_env)
             outdoors_result = np.array(self.episode_rewards)
             print(f"outdoors_mean_{outdoors_result.mean()}_std_{outdoors_result.std()}")
-            np.save(self.work_dir + f"outdoors_mean_{outdoors_result.mean()}_std_{outdoors_result.std()}", outdoors_result)
+        np.save(self.work_dir + f"outdoors_mean_{outdoors_result.mean()}_std_{outdoors_result.std()}", outdoors_result)
 
 
 @hydra.main(config_path='config_distract.yaml', strict=True)
