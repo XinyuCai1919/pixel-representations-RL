@@ -55,12 +55,6 @@ class Workspace(object):
 
         self.cfg = cfg
 
-        self.logger = Logger(self.work_dir,
-                             save_tb=cfg.log_save_tb,
-                             log_frequency=cfg.log_frequency_step,
-                             agent=cfg.agent.name,
-                             action_repeat=cfg.action_repeat)
-
         utils.set_seed_everywhere(cfg.seed)
         self.device = torch.device(cfg.device)
         self.env = make_env(cfg, cfg.resource_files)
