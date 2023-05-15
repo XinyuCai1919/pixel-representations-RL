@@ -9,7 +9,8 @@ envs: [
         ["cartpole_swingup","cartpole_swingup_sparse"],
         ["reacher_easy","reacher_hard"]
       ]
-
+eval_step: 0
+work_dir: none
 img_source: 'video'
 resource_files: '/home/xycai/pixel-representations-RL/distractors/driving/*.mp4'
 # IMPORTANT: if action_repeat is used the effective number of env steps needs to be
