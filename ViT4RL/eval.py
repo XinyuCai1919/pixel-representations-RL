@@ -29,7 +29,7 @@ def make_env(cfg, resource_files):
         task_name=task_name,
         resource_files=resource_files,
         img_source=cfg.img_source,
-        total_frames=1000,
+        total_frames=100,
         seed=cfg.seed,
         visualize_reward=False,
         from_pixels=True,
@@ -79,11 +79,11 @@ class Workspace(object):
                     action = self.agent.act(obs, sample=False)
                 obs, reward, done, info = env.step(action)
                 episode_reward += reward
-
+            print(episode_reward)
             self.episode_rewards.append(episode_reward)
 
     def run(self):
-        self.agent.actor.load_state_dict(torch.load(self.work_dir + f"/actor_{self.eval_step}-th_model.pth"))
+        self.agent.actor.load_state_dict(torch.load(self.work_dir + f"actor_{self.eval_step}-th_model.pth"))
         print("load pretrained model done")
 
         self.episode_rewards = []
@@ -107,8 +107,7 @@ class Workspace(object):
 
 @hydra.main(config_path='config_distract.yaml', strict=True)
 def main(cfg):
-    from train import Workspace as W
-    workspace = W(cfg)
+    workspace = Workspace(cfg)
     workspace.run()
 
 
